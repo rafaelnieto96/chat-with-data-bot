@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con tus Documentos</title>
+    <link rel="stylesheet" href="/homepage/style.css">
+  </head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chat con tus Documentos</h1>
+        </header>
+        
+        <main>
+            <section class="upload-section">
+                <h2>Sube tu documento</h2>
+                <form id="upload-form">
+                    <input type="file" id="pdf-file" accept=".pdf">
+                    <button type="submit" id="upload-btn">Cargar PDF</button>
+                </form>
+                <div id="file-info"></div>
+            </section>
+            
+            <section class="chat-section">
+                <div id="chat-messages">
+                    <div class="welcome-message">
+                        <p>¡Hola! Sube un documento PDF para comenzar a hacerle preguntas.</p>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..." disabled>
+                    <button id="send-btn" disabled>Enviar</button>
+                </div>
+            </section>
+            
+            <section class="info-section">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="sources">Fuentes</button>
+                    <button class="tab-btn" data-tab="query">Consulta</button>
+                    <button class="tab-btn" data-tab="history">Historial</button>
+                </div>
+                
+                <div class="tab-content active" id="sources-tab">
+                    <h3>Fragmentos del documento utilizados</h3>
+                    <div id="sources-content">
+                        <p class="placeholder">Aquí se mostrarán los fragmentos relevantes del documento...</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="query-tab">
+                    <h3>Consulta generada</h3>
+                    <div id="query-content">
+                        <p class="placeholder">Aquí se mostrará la consulta generada para la base de datos...</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="history-tab">
+                    <h3>Historial de chat</h3>
+                    <div id="history-content">
+                        <p class="placeholder">Aquí se mostrará el historial de la conversación...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>Powered by Cohere & LangChain</p>
+        </footer>
+    </div>
+
+    <script src="homepage/script.js"></script>
+</body>
+</html>
