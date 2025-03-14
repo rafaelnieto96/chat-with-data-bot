@@ -9,9 +9,17 @@
 <body>
     <div class="container">
         <header>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round">
+                        <span class="moon">🌙</span>
+                        <span class="sun">☀️</span>
+                    </div>
+                </label>
+            </div>
             <h1>Chat con tus Documentos</h1>
         </header>
-        
         <main>
             <section class="upload-section">
                 <h2>Sube tu documento</h2>
@@ -46,13 +54,6 @@
                     <h3>Fragmentos del documento utilizados</h3>
                     <div id="sources-content">
                         <p class="placeholder">Aquí se mostrarán los fragmentos relevantes del documento...</p>
-                    </div>
-                </div>
-                
-                <div class="tab-content" id="query-tab">
-                    <h3>Consulta generada</h3>
-                    <div id="query-content">
-                        <p class="placeholder">Aquí se mostrará la consulta generada para la base de datos...</p>
                     </div>
                 </div>
                 

@@ -10,10 +10,33 @@ document.addEventListener('DOMContentLoaded', function() {
   const queryContent = document.getElementById('query-content');
   const historyContent = document.getElementById('history-content');
   const tabBtns = document.querySelectorAll('.tab-btn');
-  
+      // Configuración del tema claro/oscuro
+      const toggleSwitch = document.querySelector('#checkbox');
+      const currentTheme = localStorage.getItem('theme') || 'light';
   // Variables de estado
   let isFileUploaded = false;
   
+      // Establece el tema según la preferencia guardada
+      if (currentTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        toggleSwitch.checked = true;
+    }
+    
+    // Función para cambiar el tema
+    function switchTheme(e) {
+        if (e.target.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+        // Escucha el evento de cambio en el interruptor
+        toggleSwitch.addEventListener('change', switchTheme);
+
+        
   // Manejo de pestañas
   tabBtns.forEach(btn => {
       btn.addEventListener('click', function() {

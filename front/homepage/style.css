@@ -1,15 +1,31 @@
 :root {
-  --primary-color: #2a6fc9;
-  --secondary-color: #f0f4f8;
-  --text-color: #333;
-  --light-text: #666;
-  --lighter-text: #999;
-  --border-color: #ddd;
-  --success-color: #28a745;
-  --error-color: #dc3545;
-  --padding: 20px;
-  --border-radius: 8px;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --primary-color: #2a6fc9;
+    --secondary-color: #f0f4f8;
+    --text-color: #333;
+    --light-text: #666;
+    --lighter-text: #999;
+    --border-color: #ddd;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --background-color: #f8fafc;
+    --card-background: white;
+    --padding: 20px;
+    --border-radius: 8px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #4d8fdf;
+    --secondary-color: #1e2a38;
+    --text-color: #e0e0e0;
+    --light-text: #b0b0b0;
+    --lighter-text: #808080;
+    --border-color: #444;
+    --success-color: #2dbc4e;
+    --error-color: #e35d6a;
+    --background-color: #121212;
+    --card-background: #1e1e1e;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -20,9 +36,10 @@
 }
 
 body {
-  background-color: #f8fafc;
-  color: var(--text-color);
-  line-height: 1.6;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: all 0.3s ease;
 }
 
 .container {
@@ -74,10 +91,10 @@ main {
 }
 
 section {
-  background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  padding: var(--padding);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: var(--padding);
 }
 
 /* Upload Section */
@@ -198,16 +215,40 @@ section {
 }
 
 .user-message .message {
-  background-color: var(--primary-color);
-  color: white;
-  border-bottom-right-radius: 4px;
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
 }
 
 .bot-message .message {
-  background-color: white;
-  border-bottom-left-radius: 4px;
+    background-color: white;
+    border-bottom-left-radius: 4px;
+    color: #333; /* Color más oscuro para el texto */
+}
+/* Texto en fragmentos y otros contenedores */
+[data-theme="dark"] .source-item, 
+[data-theme="dark"] #query-content pre,
+[data-theme="dark"] .tab-content {
+    color: #e0e0e0; /* Color claro para texto en áreas oscuras */
+}
+/* Estilos adicionales para mejorar la legibilidad general */
+[data-theme="dark"] .welcome-message {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
 }
 
+/* Mejorar contraste en las pestañas */
+[data-theme="dark"] .tab-btn {
+    color: #b0b0b0;
+}
+
+[data-theme="dark"] .tab-btn.active {
+    color: var(--primary-color);
+}
+[data-theme="dark"] .bot-message .message {
+    background-color: white; /* Mantener fondo blanco incluso en modo oscuro */
+    color: #333; /* Texto oscuro para contrastar con fondo blanco */
+}
 .bot-message.error .message {
   background-color: #ffebee;
   color: var(--error-color);
@@ -260,6 +301,8 @@ section {
   border-radius: 24px;
   outline: none;
   transition: border-color 0.3s;
+  background-color: var(--card-background);
+  color: var(--text-color);
 }
 
 #question-input:focus {
@@ -380,4 +423,80 @@ footer {
   margin-top: 30px;
   color: var(--lighter-text);
   font-size: 0.9em;
+}
+
+/* Estilos para el botón de cambio de tema */
+.theme-switch-wrapper {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 34px;
+    position: relative;
+    width: 60px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+}
+
+.slider:before {
+    background-color: white;
+    bottom: 4px;
+    content: "";
+    height: 26px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 26px;
+    z-index: 2;
+}
+
+input:checked + .slider {
+    background-color: #2a6fc9;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.sun, .moon {
+    font-size: 18px;
+    z-index: 1;
+}
+
+.moon {
+    margin-right: 6px;
+}
+
+.sun {
+    margin-left: 6px;
 }
