@@ -52,12 +52,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Manejar carga de archivo
-    uploadForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
+    // Manejar carga de archivo cuando el usuario selecciona un archivo
+    pdfFile.addEventListener('change', function () {
         if (!pdfFile.files[0]) {
-            alert('Por favor selecciona un archivo PDF');
             return;
         }
 
@@ -81,7 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    fileInfo.innerHTML = `<p class="success">Archivo cargado: ${file.name}</p>`;
+                    // Mostrar mensaje de confirmación
+                    fileInfo.innerHTML = `<p class="success">Archivo procesado correctamente: ${file.name}</p>`;
                     isFileUploaded = true;
 
                     // Habilitar chat
@@ -100,7 +98,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Limpiar contenidos
                     sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
-                    queryContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
+                    if (queryContent) {
+                        queryContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
+                    }
                     historyContent.innerHTML = '<p class="placeholder">Aún no hay conversaciones...</p>';
                 } else {
                     fileInfo.innerHTML = `<p class="error">Error: ${data.error}</p>`;
@@ -203,8 +203,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                // Ya no necesitamos limpiar el input aquí
             })
             .catch(error => {
                 // Eliminar indicador de escritura
