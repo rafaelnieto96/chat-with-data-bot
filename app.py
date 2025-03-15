@@ -99,11 +99,18 @@ def upload_file():
             # Resetear historial para nueva conversación
             chat_history = []
             
+            # Eliminar el archivo después de procesarlo
+            os.remove(file_path)
+            
             return jsonify({
                 "success": True, 
                 "filename": file.filename
             })
         except Exception as e:
+            # Intentar eliminar el archivo en caso de error también
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
             return jsonify({
                 "error": f"Error al procesar el archivo: {str(e)}"
             })

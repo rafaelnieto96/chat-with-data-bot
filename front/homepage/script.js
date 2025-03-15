@@ -121,25 +121,28 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Limpiar el input inmediatamente después de obtener su valor
+        questionInput.value = '';
+
         // Agregar mensaje del usuario
         chatMessages.innerHTML += `
-          <div class="user-message">
-              <div class="message">${question}</div>
-              <div class="avatar">👤</div>
-          </div>
-      `;
+            <div class="user-message">
+                <div class="message">${question}</div>
+                <div class="avatar">👤</div>
+            </div>
+        `;
 
         // Mostrar mensaje de "escribiendo"
         chatMessages.innerHTML += `
-          <div class="bot-message typing" id="typing-message">
-              <div class="avatar">🤖</div>
-              <div class="message">
-                  <div class="typing-indicator">
-                      <span></span><span></span><span></span>
-                  </div>
-              </div>
-          </div>
-      `;
+            <div class="bot-message typing" id="typing-message">
+                <div class="avatar">🤖</div>
+                <div class="message">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        `;
 
         // Scroll al final
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -159,27 +162,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar respuesta
                 chatMessages.innerHTML += `
-              <div class="bot-message">
-                  <div class="avatar">🤖</div>
-                  <div class="message">${data.answer}</div>
-              </div>
-          `;
+                <div class="bot-message">
+                    <div class="avatar">🤖</div>
+                    <div class="message">${data.answer}</div>
+                </div>
+            `;
 
                 // Actualizar fuentes
                 if (data.sources && data.sources.length) {
                     sourcesContent.innerHTML = '';
                     data.sources.forEach((source, index) => {
                         sourcesContent.innerHTML += `
-                      <div class="source-item">
-                          <h4>Fragmento ${index + 1}</h4>
-                          <p>${source.content || source}</p>
-                      </div>
-                  `;
+                        <div class="source-item">
+                            <h4>Fragmento ${index + 1}</h4>
+                            <p>${source.content || source}</p>
+                        </div>
+                    `;
                     });
                 }
 
                 // Actualizar consulta
-                if (data.db_query) {
+                if (data.db_query && queryContent) {
                     queryContent.innerHTML = `<pre>${data.db_query}</pre>`;
                 }
 
@@ -190,19 +193,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     const messageText = msg.querySelector('.message').textContent;
                     if (messageText) {
                         historyContent.innerHTML += `
-                      <div class="history-item ${isUser ? 'user' : 'bot'}">
-                          <span class="history-avatar">${isUser ? '👤' : '🤖'}</span>
-                          <p>${messageText}</p>
-                      </div>
-                  `;
+                        <div class="history-item ${isUser ? 'user' : 'bot'}">
+                            <span class="history-avatar">${isUser ? '👤' : '🤖'}</span>
+                            <p>${messageText}</p>
+                        </div>
+                    `;
                     }
                 });
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // Limpiar input
-                questionInput.value = '';
+                // Ya no necesitamos limpiar el input aquí
             })
             .catch(error => {
                 // Eliminar indicador de escritura
@@ -210,11 +212,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar error
                 chatMessages.innerHTML += `
-              <div class="bot-message error">
-                  <div class="avatar">🤖</div>
-                  <div class="message">Lo siento, ocurrió un error: ${error.message}</div>
-              </div>
-          `;
+                <div class="bot-message error">
+                    <div class="avatar">🤖</div>
+                    <div class="message">Lo siento, ocurrió un error: ${error.message}</div>
+                </div>
+            `;
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
