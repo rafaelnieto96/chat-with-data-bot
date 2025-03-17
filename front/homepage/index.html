@@ -11,6 +11,7 @@
 <body>
     <div class="container">
         <header>
+            <h1>Chat con tus Documentos</h1>
             <div class="theme-switch-wrapper">
                 <label class="theme-switch" for="checkbox">
                     <input type="checkbox" id="checkbox" />
@@ -20,62 +21,42 @@
                     </div>
                 </label>
             </div>
-            <h1>Chat con tus Documentos</h1>
         </header>
+        
         <main>
-            <section class="upload-section">
-                <h2>Sube tu documento</h2>
-                <form id="upload-form">
-                    <input type="file" id="pdf-file" accept=".pdf">
-                </form>
-                <div id="file-info"></div>
-            </section>
-
-            <section class="chat-section">
-                <div id="chat-messages">
-                    <div class="welcome-message">
-                        <p>¡Hola! Sube un documento PDF para comenzar a hacerle preguntas.</p>
+            <div class="sidebar">
+                <section class="upload-section">
+                    <h2>Sube tu documento</h2>
+                    <div class="file-input-container">
+                        <input type="file" id="pdf-file" accept=".pdf">
                     </div>
-                </div>
+                    <div id="file-info"></div>
+                </section>
 
-                <div class="input-area">
-                    <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..."
-                        disabled>
-                    <button id="send-btn" disabled>Enviar</button>
-                </div>
-            </section>
-
-            <section class="info-section">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="sources">Fuentes</button>
-                    <button class="tab-btn" data-tab="query">Consulta</button>
-                    <button class="tab-btn" data-tab="history">Historial</button>
-                </div>
-
-                <div class="tab-content active" id="sources-tab">
+                <section class="sources-section">
                     <h3>Fragmentos del documento utilizados</h3>
                     <div id="sources-content">
                         <p class="placeholder">Aquí se mostrarán los fragmentos relevantes del documento...</p>
                     </div>
-                </div>
-                <div class="tab-content" id="query-tab">
-                    <h3>Consulta generada</h3>
-                    <div id="query-content">
-                        <p class="placeholder">Aquí se mostrará la consulta...</p>
-                    </div>
-                </div>
-                <div class="tab-content" id="history-tab">
-                    <h3>Historial de chat</h3>
-                    <div id="history-content">
-                        <p class="placeholder">Aquí se mostrará el historial de la conversación...</p>
-                    </div>
-                </div>
-            </section>
-        </main>
+                </section>
+            </div>
 
-        <footer>
-            <p>Powered by Cohere & LangChain</p>
-        </footer>
+            <div class="chat-container">
+                <section class="chat-section">
+                    <div id="chat-messages">
+                        <div class="welcome-message">
+                            <p>¡Hola! Sube un documento PDF para comenzar a hacerle preguntas.</p>
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..."
+                            disabled>
+                        <button id="send-btn" disabled>Enviar</button>
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
 
     <script src="homepage/script.js"></script>

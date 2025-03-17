@@ -1,15 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Elementos DOM
-    const uploadForm = document.getElementById('upload-form');
     const pdfFile = document.getElementById('pdf-file');
     const fileInfo = document.getElementById('file-info');
     const chatMessages = document.getElementById('chat-messages');
     const questionInput = document.getElementById('question-input');
     const sendBtn = document.getElementById('send-btn');
     const sourcesContent = document.getElementById('sources-content');
-    const queryContent = document.getElementById('query-content');
-    const historyContent = document.getElementById('history-content');
-    const tabBtns = document.querySelectorAll('.tab-btn');
     // Configuración del tema claro/oscuro
     const toggleSwitch = document.querySelector('#checkbox');
     const currentTheme = localStorage.getItem('theme') || 'light';
@@ -36,21 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Escucha el evento de cambio en el interruptor
     toggleSwitch.addEventListener('change', switchTheme);
 
-
-    // Manejo de pestañas
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            // Desactivar todos los botones y contenidos
-            tabBtns.forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content =>
-                content.classList.remove('active')
-            );
-
-            // Activar el botón y contenido seleccionado
-            this.classList.add('active');
-            document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
-        });
-    });
+    // ELIMINAMOS el código de manejo de pestañas que ya no existe
+    // NO USAR: tabBtns.forEach(btn => {...})
 
     // Manejar carga de archivo cuando el usuario selecciona un archivo
     pdfFile.addEventListener('change', function () {
@@ -98,10 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Limpiar contenidos
                     sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
-                    if (queryContent) {
-                        queryContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
-                    }
-                    historyContent.innerHTML = '<p class="placeholder">Aún no hay conversaciones...</p>';
                 } else {
                     fileInfo.innerHTML = `<p class="error">Error: ${data.error}</p>`;
                 }
@@ -180,26 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     `;
                     });
                 }
-
-                // Actualizar consulta
-                if (data.db_query && queryContent) {
-                    queryContent.innerHTML = `<pre>${data.db_query}</pre>`;
-                }
-
-                // Actualizar historial
-                historyContent.innerHTML = '';
-                document.querySelectorAll('.user-message, .bot-message:not(.typing)').forEach(msg => {
-                    const isUser = msg.classList.contains('user-message');
-                    const messageText = msg.querySelector('.message').textContent;
-                    if (messageText) {
-                        historyContent.innerHTML += `
-                        <div class="history-item ${isUser ? 'user' : 'bot'}">
-                            <span class="history-avatar">${isUser ? '👤' : '🤖'}</span>
-                            <p>${messageText}</p>
-                        </div>
-                    `;
-                    }
-                });
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
