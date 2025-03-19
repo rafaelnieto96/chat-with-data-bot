@@ -6,7 +6,7 @@ from langchain_cohere import CohereEmbeddings, ChatCohere
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import DocArrayInMemorySearch
 from langchain.chains import ConversationalRetrievalChain
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 
 # Cargar variables de entorno
 load_dotenv()
@@ -25,20 +25,27 @@ model_name = "command"  # Modelo de chat de Cohere
 qa_chain = None
 chat_history = []
 
-def process_pdf(file_path, chain_type="stuff", k=4):
+def process_document(file_path, chain_type="stuff", k=4):
     """
-    Procesa un archivo PDF para crear una cadena de consulta conversacional.
+    Procesa un archivo PDF o Word para crear una cadena de consulta conversacional.
     
     Args:
-        file_path: Ruta al archivo PDF
+        file_path: Ruta al archivo
         chain_type: Tipo de cadena para la recuperación
         k: Número de fragmentos a recuperar
         
     Returns:
         ConversationalRetrievalChain: La cadena de consulta inicializada
     """
-    # Cargar y dividir documentos
-    loader = PyPDFLoader(file_path)
+    # Determinar el tipo de archivo por su extensión
+    if file_path.lower().endswith('.pdf'):
+        loader = PyPDFLoader(file_path)
+    elif file_path.lower().endswith('.docx'):
+        loader = Docx2txtLoader(file_path)
+    else:
+        raise ValueError("Formato de archivo no soportado. Solo PDF o DOCX.")
+    
+    # El resto de la función permanece igual
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
     docs = text_splitter.split_documents(documents)
@@ -74,7 +81,7 @@ def serve_static(path):
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
-    Ruta para cargar y procesar un archivo PDF
+    Ruta para cargar y procesar un archivo PDF o Word
     """
     global qa_chain, chat_history
     
@@ -85,7 +92,8 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     
-    if file and file.filename.endswith('.pdf'):
+    # Verificar si el archivo es PDF o DOCX
+    if file and (file.filename.lower().endswith('.pdf') or file.filename.lower().endswith('.docx')):
         # Crear directorio de uploads si no existe
         os.makedirs('uploads', exist_ok=True)
         
@@ -94,8 +102,8 @@ def upload_file():
         file.save(file_path)
         
         try:
-            # Procesar el PDF
-            qa_chain = process_pdf(file_path)
+            # Procesar el documento
+            qa_chain = process_document(file_path)
             # Resetear historial para nueva conversación
             chat_history = []
             
@@ -115,7 +123,7 @@ def upload_file():
                 "error": f"Error al procesar el archivo: {str(e)}"
             })
     
-    return jsonify({"error": "El archivo debe ser un PDF"})
+    return jsonify({"error": "El archivo debe ser PDF o DOCX (Word)"})
 
 @app.route('/ask', methods=['POST'])
 def ask_question():

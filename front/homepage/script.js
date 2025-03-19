@@ -41,8 +41,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const file = pdfFile.files[0];
-        if (!file.name.endsWith('.pdf')) {
-            alert('Por favor sube un archivo PDF');
+        // Verificar si es un tipo de archivo válido
+        const fileName = file.name.toLowerCase();
+        if (!fileName.endsWith('.pdf') && !fileName.endsWith('.docx')) {
+            alert('Por favor sube un archivo PDF o Word (DOCX)');
             return;
         }
 
