@@ -6,23 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat con tus Documentos</title>
     <link rel="stylesheet" href="/homepage/style.css">
+    <!-- Agregamos una fuente similar a la de referencia -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
         <header>
             <h1>Chat con tus Documentos</h1>
-            <div class="theme-switch-wrapper">
-                <label class="theme-switch" for="checkbox">
-                    <input type="checkbox" id="checkbox" />
-                    <div class="slider round">
-                        <span class="moon">🌙</span>
-                        <span class="sun">☀️</span>
-                    </div>
-                </label>
-            </div>
         </header>
-        
+
         <main>
             <div class="sidebar">
                 <section class="upload-section">
@@ -44,8 +38,11 @@
             <div class="chat-container">
                 <section class="chat-section">
                     <div id="chat-messages">
-                        <div class="welcome-message">
-                            <p>¡Hola! Sube un documento PDF para comenzar a hacerle preguntas.</p>
+                        <div class="bot-message">
+                            <div>🤖</div>
+                            <div class="message">
+                                ¡Hola! Sube un documento PDF o Word para comenzar a hacerle preguntas.
+                            </div>
                         </div>
                     </div>
 

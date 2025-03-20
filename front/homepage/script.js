@@ -5,34 +5,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const questionInput = document.getElementById('question-input');
     const sendBtn = document.getElementById('send-btn');
     const sourcesContent = document.getElementById('sources-content');
-    // Configuración del tema claro/oscuro
-    const toggleSwitch = document.querySelector('#checkbox');
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    
     // Variables de estado
     let isFileUploaded = false;
-
-    // Establece el tema según la preferencia guardada
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        toggleSwitch.checked = true;
-    }
-
-    // Función para cambiar el tema
-    function switchTheme(e) {
-        if (e.target.checked) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    // Escucha el evento de cambio en el interruptor
-    toggleSwitch.addEventListener('change', switchTheme);
-
-    // ELIMINAMOS el código de manejo de pestañas que ya no existe
-    // NO USAR: tabBtns.forEach(btn => {...})
 
     // Manejar carga de archivo cuando el usuario selecciona un archivo
     pdfFile.addEventListener('change', function () {
