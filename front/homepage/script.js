@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const pdfFile = document.getElementById('pdf-file');
-    const fileInfo = document.getElementById('file-info');
+    const fileBtn = document.getElementById('file-btn');
     const chatMessages = document.getElementById('chat-messages');
     const questionInput = document.getElementById('question-input');
     const sendBtn = document.getElementById('send-btn');
@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Variables de estado
     let isFileUploaded = false;
 
+    // Manejar el clic en el botón de archivo
+    fileBtn.addEventListener('click', function() {
+        pdfFile.click();
+    });
+
     // Manejar carga de archivo cuando el usuario selecciona un archivo
     pdfFile.addEventListener('change', function () {
         if (!pdfFile.files[0]) {
@@ -16,18 +21,42 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const file = pdfFile.files[0];
+        
         // Verificar si es un tipo de archivo válido
-        const fileName = file.name.toLowerCase();
-        if (!fileName.endsWith('.pdf') && !fileName.endsWith('.docx')) {
-            alert('Por favor sube un archivo PDF o Word (DOCX)');
+        const fileNameLower = file.name.toLowerCase();
+        if (!fileNameLower.endsWith('.pdf') && !fileNameLower.endsWith('.docx')) {
+            // Mostrar mensaje de error en el chat
+            chatMessages.innerHTML += `
+                <div class="bot-message">
+                    <div class="avatar">🤖</div>
+                    <div class="message">
+                        Por favor, sube un archivo PDF o Word (DOCX).
+                    </div>
+                </div>
+            `;
+            // Scroll al final
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
+        // Mostrar mensaje de procesamiento en el chat
+        chatMessages.innerHTML += `
+            <div class="bot-message" id="processing-message">
+                <div class="avatar">🤖</div>
+                <div class="message">
+                    Procesando ${file.name}...
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        // Scroll al final
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Crear FormData para enviar al servidor
         const formData = new FormData();
         formData.append('file', file);
-
-        // Mostrar estado de carga
-        fileInfo.innerHTML = `<p class="loading">Procesando ${file.name}...</p>`;
 
         // Enviar archivo al servidor
         fetch('/upload', {
@@ -36,43 +65,76 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
+                // Eliminar mensaje de procesamiento
+                document.getElementById('processing-message').remove();
+
                 if (data.success) {
-                    // Mostrar mensaje de confirmación
-                    fileInfo.innerHTML = `<p class="success">Archivo procesado correctamente: ${file.name}</p>`;
+                    // Mostrar mensaje de éxito en el chat
+                    chatMessages.innerHTML += `
+                        <div class="bot-message">
+                            <div class="avatar">🤖</div>
+                            <div class="message">
+                                He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!
+                            </div>
+                        </div>
+                    `;
                     isFileUploaded = true;
 
                     // Habilitar chat
                     questionInput.disabled = false;
                     sendBtn.disabled = false;
 
-                    // Mensaje de bienvenida
-                    chatMessages.innerHTML = `
-                  <div class="bot-message">
-                      <div class="avatar">🤖</div>
-                      <div class="message">
-                          He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!
-                      </div>
-                  </div>
-              `;
-
                     // Limpiar contenidos
                     sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
                 } else {
-                    fileInfo.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    // Mostrar error en el chat
+                    chatMessages.innerHTML += `
+                        <div class="bot-message">
+                            <div class="avatar">🤖</div>
+                            <div class="message">
+                                Error: ${data.error}
+                            </div>
+                        </div>
+                    `;
                 }
+                
+                // Scroll al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             })
             .catch(error => {
-                fileInfo.innerHTML = `<p class="error">Error al procesar el archivo: ${error.message}</p>`;
+                // Eliminar mensaje de procesamiento
+                document.getElementById('processing-message').remove();
+
+                // Mostrar error en el chat
+                chatMessages.innerHTML += `
+                    <div class="bot-message">
+                        <div class="avatar">🤖</div>
+                        <div class="message">
+                            Error al procesar el archivo: ${error.message}
+                        </div>
+                    </div>
+                `;
+                
+                // Scroll al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     });
 
-    // Manejar envío de preguntas
+    // El resto de tu código para manejar las preguntas...
     function sendQuestion() {
         const question = questionInput.value.trim();
         if (!question) return;
 
         if (!isFileUploaded) {
-            alert('Por favor carga un documento primero');
+            chatMessages.innerHTML += `
+                <div class="bot-message">
+                    <div class="avatar">🤖</div>
+                    <div class="message">
+                        Por favor sube un documento primero.
+                    </div>
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
@@ -117,22 +179,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar respuesta
                 chatMessages.innerHTML += `
-                <div class="bot-message">
-                    <div class="avatar">🤖</div>
-                    <div class="message">${data.answer}</div>
-                </div>
-            `;
+                    <div class="bot-message">
+                        <div class="avatar">🤖</div>
+                        <div class="message">${data.answer}</div>
+                    </div>
+                `;
 
                 // Actualizar fuentes
                 if (data.sources && data.sources.length) {
                     sourcesContent.innerHTML = '';
                     data.sources.forEach((source, index) => {
                         sourcesContent.innerHTML += `
-                        <div class="source-item">
-                            <h4>Fragmento ${index + 1}</h4>
-                            <p>${source.content || source}</p>
-                        </div>
-                    `;
+                            <div class="source-item">
+                                <h4>Fragmento ${index + 1}</h4>
+                                <p>${source.content || source}</p>
+                            </div>
+                        `;
                     });
                 }
 
@@ -145,11 +207,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar error
                 chatMessages.innerHTML += `
-                <div class="bot-message error">
-                    <div class="avatar">🤖</div>
-                    <div class="message">Lo siento, ocurrió un error: ${error.message}</div>
-                </div>
-            `;
+                    <div class="bot-message">
+                        <div class="avatar">🤖</div>
+                        <div class="message">Lo siento, ocurrió un error: ${error.message}</div>
+                    </div>
+                `;
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;

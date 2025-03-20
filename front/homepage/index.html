@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat con tus Documentos</title>
     <link rel="stylesheet" href="/homepage/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Añadimos Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -18,15 +19,6 @@
 
         <main>
             <div class="sidebar">
-                <section class="upload-section">
-                    <h2>Sube tu documento</h2>
-                    <div class="file-upload-wrapper">
-                        <button class="upload-button">Subir documento</button>
-                        <input type="file" id="pdf-file" accept=".pdf,.docx">
-                    </div>
-                    <div id="file-info"></div>
-                </section>
-
                 <section class="sources-section">
                     <h3>Fragmentos del documento utilizados</h3>
                     <div id="sources-content">
@@ -47,9 +39,14 @@
                     </div>
 
                     <div class="input-area">
-                        <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..."
-                            disabled>
-                        <button id="send-btn" disabled>Enviar</button>
+                        <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..." disabled>
+                        <button id="file-btn" class="action-btn">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button id="send-btn" class="action-btn" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                        <input type="file" id="pdf-file" accept=".pdf,.docx" style="display: none;">
                     </div>
                 </section>
             </div>

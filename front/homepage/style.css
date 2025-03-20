@@ -72,17 +72,7 @@ main {
   height: calc(100vh - 140px);
 }
 
-.sidebar {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
-  background-color: var(--secondary-blue);
-  border-right: 1px solid var(--primary-blue);
-  border-radius: 10px;
-  padding: 15px;
-}
+
 
 .chat-container {
   flex: 1;
@@ -130,24 +120,13 @@ section {
   color: var(--text-white);
 }
 
-.sources-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
 .sources-section h3 {
   color: var(--text-white);
   font-size: 1em;
   margin-bottom: 15px;
 }
 
-#sources-content {
-  overflow-y: auto;
-  max-height: calc(100vh - 400px);
-  padding-right: 5px;
-}
+
 
 .chat-section {
   height: 100%;
@@ -169,50 +148,10 @@ section {
   box-shadow: inset 0 0 10px var(--shadow-light);
 }
 
-.input-area {
-  display: flex;
-  background-color: var(--secondary-blue);
-  border-radius: 25px;
-  overflow: hidden;
-  border: 1px solid var(--primary-blue);
-}
 
-#question-input {
-  flex: 1;
-  padding: 12px 20px;
-  background-color: transparent;
-  border: none;
-  color: var(--text-white);
-  font-size: 16px;
-}
 
-#question-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
 
-#question-input:focus {
-  outline: none;
-}
 
-#send-btn {
-  padding: 12px 20px;
-  background-color: var(--primary-blue);
-  border: none;
-  color: var(--text-white);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 16px;
-}
-
-#send-btn:hover:not(:disabled) {
-  background-color: var(--secondary-blue);
-  box-shadow: 0 0 5px var(--shadow-light);
-}
-
-#send-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* Estilos para los mensajes */
 .user-message,
@@ -400,4 +339,115 @@ section {
   width: 100%;
   height: 100%;
   cursor: pointer;
+}
+
+
+
+.action-btn:hover:not(:disabled) {
+  background-color: var(--mid-blue);
+  box-shadow: 0 0 5px var(--shadow-light);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Cambiar el sidebar para que ocupe todo el alto disponible */
+.sidebar {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--secondary-blue);
+  border-right: 1px solid var(--primary-blue);
+  border-radius: 10px;
+  padding: 15px;
+  height: 100%;
+}
+
+.sources-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#sources-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Rediseño del área de entrada y botones según la referencia */
+/* Rediseño del área de entrada y botones - VERSIÓN CORREGIDA */
+.input-area {
+  display: flex;
+  align-items: stretch; /* Que los elementos ocupen toda la altura */
+  background-color: var(--secondary-blue);
+  border-radius: 25px;
+  overflow: hidden;
+  border: 1px solid var(--primary-blue);
+  height: 46px; /* Altura fija para el contenedor */
+}
+
+#question-input {
+  flex: 1;
+  padding: 0 20px;
+  background-color: transparent;
+  border: none;
+  color: var(--text-white);
+  font-size: 16px;
+}
+
+#question-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+#question-input:focus {
+  outline: none;
+}
+
+/* Botones integrados en el input */
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  background-color: var(--primary-blue);
+  border: none;
+  color: var(--text-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 100%; /* Ocupa todo el alto disponible */
+}
+
+/* Botón del clip */
+#file-btn {
+  background-color: transparent;
+  border-right: 1px solid var(--primary-blue);
+  width: 50px;
+}
+
+#file-btn:hover {
+  color: var(--primary-blue);
+}
+
+/* Botón de enviar */
+#send-btn {
+  width: 50px;
+}
+
+#send-btn:hover:not(:disabled) {
+  background-color: var(--mid-blue);
+}
+
+#send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ajustar tamaño de los iconos */
+.action-btn i {
+  font-size: 18px;
 }
