@@ -5,52 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat con tus Documentos</title>
-    <link rel="stylesheet" href="/homepage/style.css">
+    <link rel="stylesheet" href="homepage/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Añadimos Font Awesome para los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>Chat con tus Documentos</h1>
-        </header>
-
-        <main>
-            <div class="sidebar">
-                <section class="sources-section">
-                    <h3>Fragmentos del documento utilizados</h3>
-                    <div id="sources-content">
+    <div class="chatWrapper">
+        <div id="sidebar" class="chatSidebar">
+            <button id="toggle-sidebar" class="toggleButton">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="sidebarContent">
+                <div class="fragmentsSection">
+                    <h3 class="sectionTitle">Fragmentos del documento</h3>
+                    <div id="sources-content" class="fragmentsList">
                         <p class="placeholder">Aquí se mostrarán los fragmentos relevantes del documento...</p>
                     </div>
-                </section>
+                </div>
             </div>
+        </div>
 
-            <div class="chat-container">
-                <section class="chat-section">
-                    <div id="chat-messages">
-                        <div class="bot-message">
-                            <div class="avatar">🤖</div>
-                            <div class="message">
-                                ¡Hola! Sube un documento PDF o Word para comenzar a hacerle preguntas.
-                            </div>
-                        </div>
-                    </div>
+        <button id="show-sidebar-btn" class="showSidebarBtn">
+            <i class="fas fa-chevron-right"></i>
+        </button>
 
-                    <div class="input-area">
-                        <input type="text" id="question-input" placeholder="Haz una pregunta sobre el documento..." disabled>
-                        <button id="file-btn" class="action-btn">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button id="send-btn" class="action-btn" disabled>
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                        <input type="file" id="pdf-file" accept=".pdf,.docx" style="display: none;">
-                    </div>
-                </section>
+        <div id="chat-main" class="chatMain">
+            <div class="headerContainer">
+                <h1 class="chatTitle">Chat con tus Documentos</h1>
             </div>
-        </main>
+            <div id="chat-messages" class="chatContainer">
+                <div class="message assistantMessage">
+                    ¡Hola! Sube un documento PDF o Word para comenzar a hacerle preguntas.
+                </div>
+            </div>
+            <div class="inputContainer">
+                <input type="text" id="question-input" class="userInput" placeholder="Haz una pregunta sobre el documento..." disabled>
+                <button id="file-btn" class="actionBtn">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+                <button id="send-btn" class="actionBtn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <input type="file" id="pdf-file" accept=".pdf,.docx" style="display: none;">
+            </div>
+        </div>
     </div>
 
     <script src="homepage/script.js"></script>
