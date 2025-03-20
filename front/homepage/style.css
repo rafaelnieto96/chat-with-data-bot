@@ -258,8 +258,6 @@ section {
   color: #ff4444;
 }
 
-
-
 .placeholder {
   color: rgba(255, 255, 255, 0.6);
   font-style: italic;
@@ -367,4 +365,39 @@ section {
   40% {
     transform: translateY(-8px);
   }
+}
+
+.file-upload-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.upload-button {
+  width: 100%;
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  text-align: center;
+  display: block;
+}
+
+.upload-button:hover {
+  background-color: var(--mid-blue);
+  box-shadow: 0 0 5px var(--shadow-light);
+}
+
+#pdf-file {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
 }

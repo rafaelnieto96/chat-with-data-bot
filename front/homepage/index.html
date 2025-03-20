@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat con tus Documentos</title>
     <link rel="stylesheet" href="/homepage/style.css">
-    <!-- Agregamos una fuente similar a la de referencia -->
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 </head>
@@ -21,7 +20,8 @@
             <div class="sidebar">
                 <section class="upload-section">
                     <h2>Sube tu documento</h2>
-                    <div class="file-input-container">
+                    <div class="file-upload-wrapper">
+                        <button class="upload-button">Subir documento</button>
                         <input type="file" id="pdf-file" accept=".pdf,.docx">
                     </div>
                     <div id="file-info"></div>
@@ -39,7 +39,7 @@
                 <section class="chat-section">
                     <div id="chat-messages">
                         <div class="bot-message">
-                            <div>🤖</div>
+                            <div class="avatar">🤖</div>
                             <div class="message">
                                 ¡Hola! Sube un documento PDF o Word para comenzar a hacerle preguntas.
                             </div>
