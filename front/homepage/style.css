@@ -7,17 +7,14 @@
   --text-white: #FFFFFF;
   --background-blue: #001F3F;
 
-  /* Backgrounds con transparencia */
   --bg-primary-transparent: rgba(0, 91, 170, 0.3);
   --bg-secondary-transparent: rgba(0, 35, 77, 0.5);
   --bg-message-user: rgba(0, 91, 170, 0.3);
   --bg-message-assistant: rgba(0, 35, 77, 0.8);
 
-  /* Sombras */
   --shadow-light: rgba(255, 255, 255, 0.3);
   --shadow-blue: rgba(0, 91, 170, 0.3);
 
-  /* Tipografía */
   --font-primary: 'Work Sans', system-ui, -apple-system, sans-serif;
 }
 
@@ -148,12 +145,6 @@ section {
   box-shadow: inset 0 0 10px var(--shadow-light);
 }
 
-
-
-
-
-
-/* Estilos para los mensajes */
 .user-message,
 .bot-message {
   display: flex;
@@ -224,7 +215,6 @@ section {
   font-size: 0.9em;
 }
 
-/* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
   main {
     flex-direction: column;
@@ -244,7 +234,6 @@ section {
   }
 }
 
-/* Estilizado scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -263,7 +252,6 @@ section {
   background: var(--secondary-blue);
 }
 
-/* Animación de carga */
 .typing-indicator {
   display: flex;
   gap: 5px;
@@ -341,8 +329,6 @@ section {
   cursor: pointer;
 }
 
-
-
 .action-btn:hover:not(:disabled) {
   background-color: var(--mid-blue);
   box-shadow: 0 0 5px var(--shadow-light);
@@ -353,8 +339,6 @@ section {
   cursor: not-allowed;
 }
 
-
-/* Cambiar el sidebar para que ocupe todo el alto disponible */
 .sidebar {
   width: 320px;
   display: flex;
@@ -379,16 +363,13 @@ section {
   overflow-y: auto;
 }
 
-/* Rediseño del área de entrada y botones según la referencia */
-/* Rediseño del área de entrada y botones - VERSIÓN CORREGIDA */
 .input-area {
   display: flex;
-  align-items: stretch; /* Que los elementos ocupen toda la altura */
+  align-items: center;
   background-color: var(--secondary-blue);
   border-radius: 25px;
   overflow: hidden;
   border: 1px solid var(--primary-blue);
-  height: 46px; /* Altura fija para el contenedor */
 }
 
 #question-input {
@@ -398,6 +379,7 @@ section {
   border: none;
   color: var(--text-white);
   font-size: 16px;
+  height: 46px;
 }
 
 #question-input::placeholder {
@@ -408,34 +390,29 @@ section {
   outline: none;
 }
 
-/* Botones integrados en el input */
 .action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 15px;
-  background-color: var(--primary-blue);
+  height: 46px;
+  width: 46px;
   border: none;
   color: var(--text-white);
   cursor: pointer;
-  transition: all 0.3s ease;
-  height: 100%; /* Ocupa todo el alto disponible */
 }
 
-/* Botón del clip */
 #file-btn {
-  background-color: transparent;
-  border-right: 1px solid var(--primary-blue);
-  width: 50px;
+  background-color: var(--primary-blue);
+  border-right: 1px solid rgba(0, 91, 170, 0.3);
 }
 
 #file-btn:hover {
-  color: var(--primary-blue);
+  background-color: var(--secondary-blue);
+  box-shadow: 0 0 5px var(--shadow-light);
 }
 
-/* Botón de enviar */
 #send-btn {
-  width: 50px;
+  background-color: var(--primary-blue);
 }
 
 #send-btn:hover:not(:disabled) {
@@ -447,7 +424,20 @@ section {
   cursor: not-allowed;
 }
 
-/* Ajustar tamaño de los iconos */
 .action-btn i {
   font-size: 18px;
+}
+
+#send-btn i {
+  margin-right: 5px;
+}
+
+#question-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+#send-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
