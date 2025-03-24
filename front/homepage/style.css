@@ -66,7 +66,6 @@ body {
   height: 100%;
   padding-top: 10px;
   min-width: 300px;
-  /* Ancho mínimo para prevenir compresión */
   transition: opacity 0.3s ease;
 }
 
@@ -149,8 +148,7 @@ body {
 }
 
 .fragmentContent.expanded {
-  /* Eliminamos todas las propiedades de truncamiento */
-  display: block; 
+  display: block;
   -webkit-line-clamp: initial;
   line-clamp: initial;
   max-height: none;
@@ -178,7 +176,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Asegurar que la transición principal sea suave */
 .chatMain {
   flex: 1;
   display: flex;
@@ -230,6 +227,48 @@ body {
   max-width: 80%;
   width: fit-content;
   line-height: 1.4;
+  display: flex;
+  align-items: center;
+}
+
+.messageIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 22px;
+  line-height: 1;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+}
+
+.assistantMessage .messageIcon {
+  background: linear-gradient(135deg, #004880, #001F3F);
+  border: 2px solid #005BAA;
+}
+
+.userMessage .messageIcon {
+  background: linear-gradient(135deg, #005BAA, #003366);
+  border: 2px solid #0066cc;
+  order: 2;
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.messageContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.messageIcon i {
+  display: block;
+  line-height: 1;
+  font-size: 16px;
 }
 
 .userMessage {
@@ -336,14 +375,6 @@ body {
   pointer-events: all;
 }
 
-.typing-indicator {
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-}
-
 .typing-indicator span {
   display: inline-block;
   width: 8px;
@@ -394,4 +425,16 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-blue);
+}
+
+.processingContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.typing-indicator {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
 }

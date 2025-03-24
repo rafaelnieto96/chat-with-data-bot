@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
     showSidebarBtn.addEventListener('click', toggleSidebar);
 
     // Función para crear los fragmentos con botones de expandir/contraer
-    // Función para crear los fragmentos con botones de expandir/contraer
     function createFragmentItem(content, index) {
         const fragmentDiv = document.createElement('div');
         fragmentDiv.className = 'fragmentItem';
@@ -86,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
         pdfFile.click();
     });
 
-    // Manejar carga de archivo cuando el usuario selecciona un archivo
+    // ÚNICO manejador para la carga de archivos
     pdfFile.addEventListener('change', function () {
         if (!pdfFile.files[0]) {
             return;
@@ -100,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Mostrar mensaje de error en el chat
             chatMessages.innerHTML += `
                 <div class="message assistantMessage">
-                    Por favor, sube un archivo PDF o Word (DOCX).
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Por favor, sube un archivo PDF o Word (DOCX).</div>
                 </div>
             `;
             // Scroll al final
@@ -110,13 +110,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Mostrar mensaje de procesamiento en el chat
         chatMessages.innerHTML += `
-            <div class="message assistantMessage" id="processing-message">
-                Procesando ${file.name}...
+    <div class="message assistantMessage" id="processing-message">
+        <div class="messageIcon">🤖</div>
+        <div class="messageContent">
+            <div class="processingContainer">
+                <span>Procesando ${file.name}</span>
                 <div class="typing-indicator">
                     <span></span><span></span><span></span>
                 </div>
             </div>
-        `;
+        </div>
+    </div>
+`;
         // Scroll al final
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -137,10 +142,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     // Mostrar mensaje de éxito en el chat
                     chatMessages.innerHTML += `
-                        <div class="message assistantMessage">
-                            He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!
-                        </div>
-                    `;
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!</div>
+                    </div>
+                `;
                     isFileUploaded = true;
 
                     // Habilitar chat
@@ -152,10 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     // Mostrar error en el chat
                     chatMessages.innerHTML += `
-                        <div class="message assistantMessage">
-                            Error: ${data.error}
-                        </div>
-                    `;
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">Error: ${data.error}</div>
+                    </div>
+                `;
                 }
 
                 // Scroll al final
@@ -167,10 +174,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar error en el chat
                 chatMessages.innerHTML += `
-                    <div class="message assistantMessage">
-                        Error al procesar el archivo: ${error.message}
-                    </div>
-                `;
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Error al procesar el archivo: ${error.message}</div>
+                </div>
+            `;
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -185,7 +193,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isFileUploaded) {
             chatMessages.innerHTML += `
                 <div class="message assistantMessage">
-                    Por favor sube un documento primero.
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Por favor sube un documento primero.</div>
                 </div>
             `;
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -198,15 +207,19 @@ document.addEventListener('DOMContentLoaded', function () {
         // Agregar mensaje del usuario
         chatMessages.innerHTML += `
             <div class="message userMessage">
-                ${question}
+                <div class="messageIcon">👤</div>
+                <div class="messageContent">${question}</div>
             </div>
         `;
 
         // Mostrar mensaje de "escribiendo"
         chatMessages.innerHTML += `
             <div class="message assistantMessage" id="typing-message">
-                <div class="typing-indicator">
-                    <span></span><span></span><span></span>
+                <div class="messageIcon">🤖</div>
+                <div class="messageContent">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
                 </div>
             </div>
         `;
@@ -229,12 +242,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar respuesta
                 chatMessages.innerHTML += `
-                    <div class="message assistantMessage">
-                        ${data.answer}
-                    </div>
-                `;
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">${data.answer}</div>
+                </div>
+            `;
 
-                // Actualizar fragmentos en el sidebar usando la nueva función
+                // Actualizar fragmentos en el sidebar
                 if (data.sources && data.sources.length) {
                     updateFragments(data.sources);
                 }
@@ -248,10 +262,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar error
                 chatMessages.innerHTML += `
-                    <div class="message assistantMessage">
-                        Lo siento, ocurrió un error: ${error.message}
-                    </div>
-                `;
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Lo siento, ocurrió un error: ${error.message}</div>
+                </div>
+            `;
 
                 // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
