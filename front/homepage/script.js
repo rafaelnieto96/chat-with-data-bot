@@ -36,47 +36,67 @@ document.addEventListener('DOMContentLoaded', function () {
     showSidebarBtn.addEventListener('click', toggleSidebar);
 
     // Función para crear los fragmentos con botones de expandir/contraer
-    function createFragmentItem(content, index) {
+    function createFragmentItem(source, index) {
         const fragmentDiv = document.createElement('div');
         fragmentDiv.className = 'fragmentItem';
 
-        // Guardamos el contenido completo como atributo de datos
-        const fullContent = content;
+        // Crear el div para el contenido
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'fragmentContent';
+        contentDiv.id = `fragment-${index}`;
 
-        fragmentDiv.innerHTML = `
-        <div class="fragmentContent" id="fragment-${index}" data-full-content="${encodeURIComponent(fullContent)}">${fullContent}</div>
-        <span class="fragmentToggle" data-index="${index}">Mostrar más</span>
-    `;
+        // Obtener el contenido completo y truncado
+        const fullContent = source.full_content || source;
+        const truncatedContent = source.content || source;
+
+        // Almacenar el contenido como atributos de datos
+        fragmentDiv.dataset.fullContent = fullContent;
+        fragmentDiv.dataset.truncatedContent = truncatedContent;
+
+        // Establecer el contenido inicial (truncado)
+        contentDiv.textContent = truncatedContent;
+
+        // Crear el botón de mostrar más/menos
+        const toggleBtn = document.createElement('span');
+        toggleBtn.className = 'fragmentToggle';
+        toggleBtn.textContent = 'Mostrar más';
+
+        // Agregar los elementos al fragmento
+        fragmentDiv.appendChild(contentDiv);
+        fragmentDiv.appendChild(toggleBtn);
 
         // Agregar al contenedor de fragmentos
         sourcesContent.appendChild(fragmentDiv);
 
         // Agregar event listener para el botón de mostrar más/menos
-        const toggleBtn = fragmentDiv.querySelector('.fragmentToggle');
         toggleBtn.addEventListener('click', function () {
-            const index = this.getAttribute('data-index');
-            const contentDiv = document.getElementById(`fragment-${index}`);
-
             contentDiv.classList.toggle('expanded');
 
             if (contentDiv.classList.contains('expanded')) {
-                // Cuando expandimos, nos aseguramos de mostrar el contenido completo
+                // Usar el contenido completo almacenado en el dataset
+                contentDiv.textContent = fragmentDiv.dataset.fullContent;
                 this.textContent = 'Mostrar menos';
             } else {
-                // Versión truncada
+                // Volver a la versión resumida
+                contentDiv.textContent = fragmentDiv.dataset.truncatedContent;
                 this.textContent = 'Mostrar más';
             }
         });
     }
 
-    // Función para actualizar los fragmentos
     function updateFragments(sources) {
         if (sources && sources.length) {
             sourcesContent.innerHTML = '';
             sources.forEach((source, index) => {
-                const content = source.content || source;
-                createFragmentItem(content, index);
+                createFragmentItem(source, index);
             });
+
+            // Asegurarse de que el sidebar esté visible
+            if (sidebar.classList.contains('collapsed')) {
+                toggleSidebar(); // Expandir el sidebar para mostrar los fragmentos
+            }
+        } else {
+            sourcesContent.innerHTML = '<p class="placeholder">No hay fragmentos disponibles para esta consulta.</p>';
         }
     }
 
