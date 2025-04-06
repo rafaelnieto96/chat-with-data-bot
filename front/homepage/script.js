@@ -1,58 +1,153 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Variables para el manejo de archivos
     const pdfFile = document.getElementById('pdf-file');
-    const fileInfo = document.getElementById('file-info');
+    const fileBtn = document.getElementById('file-btn');
     const chatMessages = document.getElementById('chat-messages');
     const questionInput = document.getElementById('question-input');
     const sendBtn = document.getElementById('send-btn');
     const sourcesContent = document.getElementById('sources-content');
-    // Configuración del tema claro/oscuro
-    const toggleSwitch = document.querySelector('#checkbox');
-    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    // Variables para el sidebar
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
+    const showSidebarBtn = document.getElementById('show-sidebar-btn');
+    const sidebar = document.getElementById('sidebar');
+    const chatMain = document.getElementById('chat-main');
+
     // Variables de estado
     let isFileUploaded = false;
 
-    // Establece el tema según la preferencia guardada
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        toggleSwitch.checked = true;
-    }
+    // Función para alternar el sidebar
+    function toggleSidebar() {
+        sidebar.classList.toggle('collapsed');
+        chatMain.classList.toggle('fullWidth');
 
-    // Función para cambiar el tema
-    function switchTheme(e) {
-        if (e.target.checked) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
+        // Cambiar la visibilidad del botón flotante
+        if (sidebar.classList.contains('collapsed')) {
+            showSidebarBtn.style.display = 'flex'; // Mostrar solo el botón flotante
+            toggleSidebarBtn.style.display = 'none'; // Ocultar el botón interno
         } else {
-            document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
+            showSidebarBtn.style.display = 'none'; // Ocultar el botón flotante
+            toggleSidebarBtn.style.display = 'flex'; // Mostrar el botón interno
         }
     }
 
-    // Escucha el evento de cambio en el interruptor
-    toggleSwitch.addEventListener('change', switchTheme);
+    // Event listeners para el sidebar
+    toggleSidebarBtn.addEventListener('click', toggleSidebar);
+    showSidebarBtn.addEventListener('click', toggleSidebar);
 
-    // ELIMINAMOS el código de manejo de pestañas que ya no existe
-    // NO USAR: tabBtns.forEach(btn => {...})
+    // Función para crear los fragmentos con botones de expandir/contraer
+    function createFragmentItem(source, index) {
+        const fragmentDiv = document.createElement('div');
+        fragmentDiv.className = 'fragmentItem';
 
-    // Manejar carga de archivo cuando el usuario selecciona un archivo
+        // Crear el div para el contenido
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'fragmentContent';
+        contentDiv.id = `fragment-${index}`;
+
+        // Obtener el contenido completo y truncado
+        const fullContent = source.full_content || source;
+        const truncatedContent = source.content || source;
+
+        // Almacenar el contenido como atributos de datos
+        fragmentDiv.dataset.fullContent = fullContent;
+        fragmentDiv.dataset.truncatedContent = truncatedContent;
+
+        // Establecer el contenido inicial (truncado)
+        contentDiv.textContent = truncatedContent;
+
+        // Crear el botón de mostrar más/menos
+        const toggleBtn = document.createElement('span');
+        toggleBtn.className = 'fragmentToggle';
+        toggleBtn.textContent = 'Mostrar más';
+
+        // Agregar los elementos al fragmento
+        fragmentDiv.appendChild(contentDiv);
+        fragmentDiv.appendChild(toggleBtn);
+
+        // Agregar al contenedor de fragmentos
+        sourcesContent.appendChild(fragmentDiv);
+
+        // Agregar event listener para el botón de mostrar más/menos
+        toggleBtn.addEventListener('click', function () {
+            contentDiv.classList.toggle('expanded');
+
+            if (contentDiv.classList.contains('expanded')) {
+                // Usar el contenido completo almacenado en el dataset
+                contentDiv.textContent = fragmentDiv.dataset.fullContent;
+                this.textContent = 'Mostrar menos';
+            } else {
+                // Volver a la versión resumida
+                contentDiv.textContent = fragmentDiv.dataset.truncatedContent;
+                this.textContent = 'Mostrar más';
+            }
+        });
+    }
+
+    function updateFragments(sources) {
+        if (sources && sources.length) {
+            sourcesContent.innerHTML = '';
+            sources.forEach((source, index) => {
+                createFragmentItem(source, index);
+            });
+
+            // Asegurarse de que el sidebar esté visible
+            if (sidebar.classList.contains('collapsed')) {
+                toggleSidebar(); // Expandir el sidebar para mostrar los fragmentos
+            }
+        } else {
+            sourcesContent.innerHTML = '<p class="placeholder">No hay fragmentos disponibles para esta consulta.</p>';
+        }
+    }
+
+    // Manejar el clic en el botón de archivo
+    fileBtn.addEventListener('click', function () {
+        pdfFile.click();
+    });
+
+    // ÚNICO manejador para la carga de archivos
     pdfFile.addEventListener('change', function () {
         if (!pdfFile.files[0]) {
             return;
         }
 
         const file = pdfFile.files[0];
+
         // Verificar si es un tipo de archivo válido
-        const fileName = file.name.toLowerCase();
-        if (!fileName.endsWith('.pdf') && !fileName.endsWith('.docx')) {
-            alert('Por favor sube un archivo PDF o Word (DOCX)');
+        const fileNameLower = file.name.toLowerCase();
+        if (!fileNameLower.endsWith('.pdf') && !fileNameLower.endsWith('.docx')) {
+            // Mostrar mensaje de error en el chat
+            chatMessages.innerHTML += `
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Por favor, sube un archivo PDF o Word (DOCX).</div>
+                </div>
+            `;
+            // Scroll al final
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
+        // Mostrar mensaje de procesamiento en el chat
+        chatMessages.innerHTML += `
+    <div class="message assistantMessage" id="processing-message">
+        <div class="messageIcon">🤖</div>
+        <div class="messageContent">
+            <div class="processingContainer">
+                <span>Procesando ${file.name}</span>
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+        // Scroll al final
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Crear FormData para enviar al servidor
         const formData = new FormData();
         formData.append('file', file);
-
-        // Mostrar estado de carga
-        fileInfo.innerHTML = `<p class="loading">Procesando ${file.name}...</p>`;
 
         // Enviar archivo al servidor
         fetch('/upload', {
@@ -61,43 +156,68 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
+                // Eliminar mensaje de procesamiento
+                document.getElementById('processing-message').remove();
+
                 if (data.success) {
-                    // Mostrar mensaje de confirmación
-                    fileInfo.innerHTML = `<p class="success">Archivo procesado correctamente: ${file.name}</p>`;
+                    // Mostrar mensaje de éxito en el chat
+                    chatMessages.innerHTML += `
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!</div>
+                    </div>
+                `;
                     isFileUploaded = true;
 
                     // Habilitar chat
                     questionInput.disabled = false;
                     sendBtn.disabled = false;
 
-                    // Mensaje de bienvenida
-                    chatMessages.innerHTML = `
-                  <div class="bot-message">
-                      <div class="avatar">🤖</div>
-                      <div class="message">
-                          He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!
-                      </div>
-                  </div>
-              `;
-
                     // Limpiar contenidos
                     sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
                 } else {
-                    fileInfo.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                    // Mostrar error en el chat
+                    chatMessages.innerHTML += `
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">Error: ${data.error}</div>
+                    </div>
+                `;
                 }
+
+                // Scroll al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             })
             .catch(error => {
-                fileInfo.innerHTML = `<p class="error">Error al procesar el archivo: ${error.message}</p>`;
+                // Eliminar mensaje de procesamiento
+                document.getElementById('processing-message').remove();
+
+                // Mostrar error en el chat
+                chatMessages.innerHTML += `
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Error al procesar el archivo: ${error.message}</div>
+                </div>
+            `;
+
+                // Scroll al final
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     });
 
-    // Manejar envío de preguntas
+    // Función para enviar pregunta
     function sendQuestion() {
         const question = questionInput.value.trim();
         if (!question) return;
 
         if (!isFileUploaded) {
-            alert('Por favor carga un documento primero');
+            chatMessages.innerHTML += `
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Por favor sube un documento primero.</div>
+                </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
@@ -106,17 +226,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Agregar mensaje del usuario
         chatMessages.innerHTML += `
-            <div class="user-message">
-                <div class="message">${question}</div>
-                <div class="avatar">👤</div>
+            <div class="message userMessage">
+                <div class="messageIcon">👤</div>
+                <div class="messageContent">${question}</div>
             </div>
         `;
 
         // Mostrar mensaje de "escribiendo"
         chatMessages.innerHTML += `
-            <div class="bot-message typing" id="typing-message">
-                <div class="avatar">🤖</div>
-                <div class="message">
+            <div class="message assistantMessage" id="typing-message">
+                <div class="messageIcon">🤖</div>
+                <div class="messageContent">
                     <div class="typing-indicator">
                         <span></span><span></span><span></span>
                     </div>
@@ -142,23 +262,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar respuesta
                 chatMessages.innerHTML += `
-                <div class="bot-message">
-                    <div class="avatar">🤖</div>
-                    <div class="message">${data.answer}</div>
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">${data.answer}</div>
                 </div>
             `;
 
-                // Actualizar fuentes
+                // Actualizar fragmentos en el sidebar
                 if (data.sources && data.sources.length) {
-                    sourcesContent.innerHTML = '';
-                    data.sources.forEach((source, index) => {
-                        sourcesContent.innerHTML += `
-                        <div class="source-item">
-                            <h4>Fragmento ${index + 1}</h4>
-                            <p>${source.content || source}</p>
-                        </div>
-                    `;
-                    });
+                    updateFragments(data.sources);
                 }
 
                 // Scroll al final
@@ -170,9 +282,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Mostrar error
                 chatMessages.innerHTML += `
-                <div class="bot-message error">
-                    <div class="avatar">🤖</div>
-                    <div class="message">Lo siento, ocurrió un error: ${error.message}</div>
+                <div class="message assistantMessage">
+                    <div class="messageIcon">🤖</div>
+                    <div class="messageContent">Lo siento, ocurrió un error: ${error.message}</div>
                 </div>
             `;
 

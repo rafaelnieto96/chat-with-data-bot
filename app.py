@@ -156,10 +156,14 @@ def ask_question():
         # Formatear los documentos fuente para la respuesta
         sources = []
         for doc in result["source_documents"]:
-            # Limitar el contenido a mostrar
-            content_preview = doc.page_content[:300] + "..." if len(doc.page_content) > 300 else doc.page_content
+            # Versión completa sin truncar
+            full_content = doc.page_content
+            # Versión truncada para mostrar inicialmente
+            content_preview = full_content[:300] + "..." if len(full_content) > 300 else full_content
+            
             sources.append({
                 "content": content_preview,
+                "full_content": full_content,
                 "metadata": doc.metadata
             })
         
