@@ -1,18 +1,13 @@
-# LangChain core packages
+# Esenciales para la app
+flask
+python-dotenv>=1.0.0
+
+# LangChain y Cohere
 langchain>=0.1.0
 langchain-cohere>=0.1.0
 langchain-community>=0.0.10
 
-# Document processing
+# Procesamiento de documentos
 pypdf>=3.15.1
 docarray>=0.32.0
-python-docx
 docx2txt
-
-# Environment management
-python-dotenv>=1.0.0
-
-# Other utilities
-numpy>=1.24.0
-pydantic>=2.0.0
-flask
