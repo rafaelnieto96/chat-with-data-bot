@@ -176,13 +176,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Limpiar contenidos
                     sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
                 } else {
-                    // Mostrar error en el chat
+                    // Mostrar error genérico en el chat
                     chatMessages.innerHTML += `
                     <div class="message assistantMessage">
                         <div class="messageIcon">🤖</div>
-                        <div class="messageContent">Error: ${data.error}</div>
+                        <div class="messageContent">Lo siento, ha ocurrido un error al procesar el archivo. Por favor, inténtalo de nuevo más tarde.</div>
                     </div>
                 `;
+                    // Registrar el error detallado en la consola
+                    console.error("Error del servidor:", data.error);
                 }
 
                 // Scroll al final
@@ -192,11 +194,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Eliminar mensaje de procesamiento
                 document.getElementById('processing-message').remove();
 
-                // Mostrar error en el chat
+                // Registrar el error detallado en la consola
+                console.error("Error al procesar el archivo:", error);
+
+                // Mostrar mensaje genérico en el chat
                 chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Error al procesar el archivo: ${error.message}</div>
+                    <div class="messageContent">Lo siento, ha ocurrido un error al procesar el archivo. Por favor, inténtalo de nuevo más tarde.</div>
                 </div>
             `;
 
@@ -260,17 +265,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Eliminar indicador de escritura
                 document.getElementById('typing-message').remove();
 
-                // Mostrar respuesta
-                chatMessages.innerHTML += `
-                <div class="message assistantMessage">
-                    <div class="messageIcon">🤖</div>
-                    <div class="messageContent">${data.answer}</div>
-                </div>
-            `;
+                if (data.error) {
+                    // Registrar el error detallado en la consola
+                    console.error("Error del servidor:", data.error);
+                    
+                    // Mostrar mensaje genérico en el chat
+                    chatMessages.innerHTML += `
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">Lo siento, ha ocurrido un error al procesar tu pregunta. Por favor, inténtalo de nuevo.</div>
+                    </div>
+                    `;
+                } else {
+                    // Mostrar respuesta
+                    chatMessages.innerHTML += `
+                    <div class="message assistantMessage">
+                        <div class="messageIcon">🤖</div>
+                        <div class="messageContent">${data.answer}</div>
+                    </div>
+                    `;
 
-                // Actualizar fragmentos en el sidebar
-                if (data.sources && data.sources.length) {
-                    updateFragments(data.sources);
+                    // Actualizar fragmentos en el sidebar
+                    if (data.sources && data.sources.length) {
+                        updateFragments(data.sources);
+                    }
                 }
 
                 // Scroll al final
@@ -280,11 +298,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Eliminar indicador de escritura
                 document.getElementById('typing-message').remove();
 
-                // Mostrar error
+                // Registrar el error detallado en la consola
+                console.error("Error al procesar la pregunta:", error);
+
+                // Mostrar mensaje genérico en el chat
                 chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Lo siento, ocurrió un error: ${error.message}</div>
+                    <div class="messageContent">Lo siento, ha ocurrido un error al procesar tu pregunta. Por favor, inténtalo de nuevo.</div>
                 </div>
             `;
 

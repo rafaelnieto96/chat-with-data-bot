@@ -115,14 +115,17 @@ def upload_file():
                 "filename": file.filename
             })
         except Exception as e:
-            # Intentar eliminar el archivo en caso de error también
+            # Registrar el error detallado en la consola del servidor
+            print(f"Error al procesar archivo: {str(e)}", file=sys.stderr)
+            
+            # Intentar eliminar el archivo en caso de error
             if os.path.exists(file_path):
                 os.remove(file_path)
                 
             return jsonify({
-                "error": f"Error al procesar el archivo: {str(e)}"
+                "error": "Error al procesar el archivo. Por favor, inténtalo más tarde."
             })
-    
+
     return jsonify({"error": "El archivo debe ser PDF o DOCX (Word)"})
 
 @app.route('/ask', methods=['POST'])
@@ -131,7 +134,7 @@ def ask_question():
     Ruta para procesar preguntas sobre el documento cargado
     """
     global chat_history, qa_chain
-    
+
     # Verificar que hay una cadena inicializada
     if not qa_chain:
         return jsonify({"error": "Por favor, carga un documento primero"})
@@ -177,7 +180,11 @@ def ask_question():
         return jsonify(response)
     
     except Exception as e:
-        return jsonify({"error": f"Error al procesar la pregunta: {str(e)}"})
+        print(f"Error al procesar pregunta: {str(e)}", file=sys.stderr)
+        
+        return jsonify({
+            "error": "Error al procesar la pregunta. Por favor, inténtalo más tarde."
+        })
 
 if __name__ == '__main__':
     # Verificar la presencia de la API key
