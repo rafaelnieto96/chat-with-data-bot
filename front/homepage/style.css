@@ -443,3 +443,116 @@ body {
   gap: 5px;
   align-items: center;
 }
+
+@media screen and (max-width: 1024px) {
+  .chatWrapper {
+    flex-direction: column;
+  }
+
+  .chatSidebar {
+    width: 100%;
+    max-height: 35vh;
+    border-right: none;
+    border-bottom: 1px solid var(--primary-blue);
+  }
+
+  .chatSidebar.collapsed {
+    max-height: 50px;
+    width: 100%;
+  }
+
+  .sidebarContent {
+    min-width: 100%;
+  }
+
+  .chatMain {
+    height: 65vh;
+  }
+
+  .chatMain.fullWidth {
+    margin-left: 0;
+  }
+
+  .toggleButton {
+    transform: rotate(90deg);
+    top: 15px;
+  }
+
+  .showSidebarBtn {
+    transform: rotate(90deg);
+    top: 5px;
+    left: 50%;
+    margin-left: -15px;
+  }
+
+  .fragmentsList {
+    max-height: calc(35vh - 120px);
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .chatTitle {
+    font-size: 1.5rem;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+
+  .inputContainer {
+    flex-wrap: nowrap;
+  }
+
+  .userInput {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .actionBtn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .messageIcon {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+
+  .fragmentItem {
+    padding: 10px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .chatTitle {
+    font-size: 1.2rem;
+  }
+
+  .headerContainer {
+    margin-bottom: 10px;
+  }
+
+  .chatContainer {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .message {
+    padding: 8px;
+    margin-bottom: 10px;
+    max-width: 95%;
+  }
+
+  .fragmentItem {
+    margin-bottom: 5px;
+  }
+
+  .userInput {
+    font-size: 12px;
+  }
+
+  .actionBtn {
+    font-size: 12px;
+  }
+}

@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Add user message
         chatMessages.innerHTML += `
             <div class="message userMessage">
-                <div class="messageIcon">👤</div>
+                <div class="messageIcon">🧑</div>
                 <div class="messageContent">${question}</div>
             </div>
         `;
