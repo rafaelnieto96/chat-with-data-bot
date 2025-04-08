@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat con tus Documentos</title>
+    <title>Chat with your Documents</title>
     <link rel="stylesheet" href="homepage/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -18,9 +19,9 @@
             </button>
             <div class="sidebarContent">
                 <div class="fragmentsSection">
-                    <h3 class="sectionTitle">Fragmentos del documento</h3>
+                    <h3 class="sectionTitle">Document Fragments</h3>
                     <div id="sources-content" class="fragmentsList">
-                        <p class="placeholder">Aquí se mostrarán los fragmentos relevantes del documento...</p>
+                        <p class="placeholder">Relevant document fragments will be displayed here...</p>
                     </div>
                 </div>
             </div>
@@ -32,16 +33,18 @@
 
         <div id="chat-main" class="chatMain">
             <div class="headerContainer">
-                <h1 class="chatTitle">Chat con tus Documentos</h1>
+                <h1 class="chatTitle">Chat with your Documents</h1>
             </div>
             <div id="chat-messages" class="chatContainer">
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">¡Hola! Sube un documento PDF o Word para comenzar a hacerle preguntas.</div>
+                    <div class="messageContent">Hello! Upload a PDF or Word document to start asking questions about it.
+                    </div>
                 </div>
             </div>
             <div class="inputContainer">
-                <input type="text" id="question-input" class="userInput" placeholder="Haz una pregunta sobre el documento..." disabled>
+                <input type="text" id="question-input" class="userInput"
+                    placeholder="Ask a question about the document..." disabled>
                 <button id="file-btn" class="actionBtn">
                     <i class="fas fa-paperclip"></i>
                 </button>

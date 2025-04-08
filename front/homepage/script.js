@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Variables para el manejo de archivos
+    // File handling elements
     const pdfFile = document.getElementById('pdf-file');
     const fileBtn = document.getElementById('file-btn');
     const chatMessages = document.getElementById('chat-messages');
@@ -7,79 +7,68 @@ document.addEventListener('DOMContentLoaded', function () {
     const sendBtn = document.getElementById('send-btn');
     const sourcesContent = document.getElementById('sources-content');
 
-    // Variables para el sidebar
+    // Sidebar elements
     const toggleSidebarBtn = document.getElementById('toggle-sidebar');
     const showSidebarBtn = document.getElementById('show-sidebar-btn');
     const sidebar = document.getElementById('sidebar');
     const chatMain = document.getElementById('chat-main');
 
-    // Variables de estado
+    // State variables
     let isFileUploaded = false;
 
-    // Función para alternar el sidebar
+    // Toggle sidebar visibility
     function toggleSidebar() {
         sidebar.classList.toggle('collapsed');
         chatMain.classList.toggle('fullWidth');
 
-        // Cambiar la visibilidad del botón flotante
         if (sidebar.classList.contains('collapsed')) {
-            showSidebarBtn.style.display = 'flex'; // Mostrar solo el botón flotante
-            toggleSidebarBtn.style.display = 'none'; // Ocultar el botón interno
+            showSidebarBtn.style.display = 'flex';
+            toggleSidebarBtn.style.display = 'none';
         } else {
-            showSidebarBtn.style.display = 'none'; // Ocultar el botón flotante
-            toggleSidebarBtn.style.display = 'flex'; // Mostrar el botón interno
+            showSidebarBtn.style.display = 'none';
+            toggleSidebarBtn.style.display = 'flex';
         }
     }
 
-    // Event listeners para el sidebar
+    // Sidebar event listeners
     toggleSidebarBtn.addEventListener('click', toggleSidebar);
     showSidebarBtn.addEventListener('click', toggleSidebar);
 
-    // Función para crear los fragmentos con botones de expandir/contraer
+    // Create fragment items with expand/collapse functionality
     function createFragmentItem(source, index) {
         const fragmentDiv = document.createElement('div');
         fragmentDiv.className = 'fragmentItem';
 
-        // Crear el div para el contenido
         const contentDiv = document.createElement('div');
         contentDiv.className = 'fragmentContent';
         contentDiv.id = `fragment-${index}`;
 
-        // Obtener el contenido completo y truncado
         const fullContent = source.full_content || source;
         const truncatedContent = source.content || source;
 
-        // Almacenar el contenido como atributos de datos
         fragmentDiv.dataset.fullContent = fullContent;
         fragmentDiv.dataset.truncatedContent = truncatedContent;
 
-        // Establecer el contenido inicial (truncado)
         contentDiv.textContent = truncatedContent;
 
-        // Crear el botón de mostrar más/menos
         const toggleBtn = document.createElement('span');
         toggleBtn.className = 'fragmentToggle';
-        toggleBtn.textContent = 'Mostrar más';
+        toggleBtn.textContent = 'Show more';
 
-        // Agregar los elementos al fragmento
         fragmentDiv.appendChild(contentDiv);
         fragmentDiv.appendChild(toggleBtn);
 
-        // Agregar al contenedor de fragmentos
         sourcesContent.appendChild(fragmentDiv);
 
-        // Agregar event listener para el botón de mostrar más/menos
         toggleBtn.addEventListener('click', function () {
             contentDiv.classList.toggle('expanded');
 
             if (contentDiv.classList.contains('expanded')) {
-                // Usar el contenido completo almacenado en el dataset
                 contentDiv.textContent = fragmentDiv.dataset.fullContent;
-                this.textContent = 'Mostrar menos';
+                this.textContent = 'Show less';
             } else {
-                // Volver a la versión resumida
                 contentDiv.textContent = fragmentDiv.dataset.truncatedContent;
-                this.textContent = 'Mostrar más';
+                this.textContent = 'Show more';
             }
         });
     }
@@ -91,21 +80,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 createFragmentItem(source, index);
             });
 
-            // Asegurarse de que el sidebar esté visible
+            // Ensure sidebar is visible
             if (sidebar.classList.contains('collapsed')) {
-                toggleSidebar(); // Expandir el sidebar para mostrar los fragmentos
+                toggleSidebar();
             }
         } else {
-            sourcesContent.innerHTML = '<p class="placeholder">No hay fragmentos disponibles para esta consulta.</p>';
+            sourcesContent.innerHTML = '<p class="placeholder">No fragments available for this query.</p>';
         }
     }
 
-    // Manejar el clic en el botón de archivo
+    // Handle file button click
     fileBtn.addEventListener('click', function () {
         pdfFile.click();
     });
 
-    // ÚNICO manejador para la carga de archivos
+    // File upload handler
     pdfFile.addEventListener('change', function () {
         if (!pdfFile.files[0]) {
             return;
@@ -113,28 +102,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const file = pdfFile.files[0];
 
-        // Verificar si es un tipo de archivo válido
+        // Validate file type
         const fileNameLower = file.name.toLowerCase();
         if (!fileNameLower.endsWith('.pdf') && !fileNameLower.endsWith('.docx')) {
-            // Mostrar mensaje de error en el chat
             chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Por favor, sube un archivo PDF o Word (DOCX).</div>
+                    <div class="messageContent">Please upload a PDF or Word (DOCX) file.</div>
                 </div>
             `;
-            // Scroll al final
             chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
-        // Mostrar mensaje de procesamiento en el chat
+        // Show processing message
         chatMessages.innerHTML += `
     <div class="message assistantMessage" id="processing-message">
         <div class="messageIcon">🤖</div>
         <div class="messageContent">
             <div class="processingContainer">
-                <span>Procesando ${file.name}</span>
+                <span>Processing ${file.name}</span>
                 <div class="typing-indicator">
                     <span></span><span></span><span></span>
                 </div>
@@ -142,75 +129,63 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </div>
 `;
-        // Scroll al final
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Crear FormData para enviar al servidor
         const formData = new FormData();
         formData.append('file', file);
 
-        // Enviar archivo al servidor
+        // Send file to server
         fetch('/upload', {
             method: 'POST',
             body: formData
         })
             .then(response => response.json())
             .then(data => {
-                // Eliminar mensaje de procesamiento
                 document.getElementById('processing-message').remove();
 
                 if (data.success) {
-                    // Mostrar mensaje de éxito en el chat
                     chatMessages.innerHTML += `
                     <div class="message assistantMessage">
                         <div class="messageIcon">🤖</div>
-                        <div class="messageContent">He procesado tu documento "${data.filename}". ¡Ahora puedes hacerme preguntas sobre él!</div>
+                        <div class="messageContent">I've processed your document "${data.filename}". You can now ask me questions about it!</div>
                     </div>
                 `;
                     isFileUploaded = true;
 
-                    // Habilitar chat
+                    // Enable chat
                     questionInput.disabled = false;
                     sendBtn.disabled = false;
 
-                    // Limpiar contenidos
-                    sourcesContent.innerHTML = '<p class="placeholder">Aún no hay consultas...</p>';
+                    sourcesContent.innerHTML = '<p class="placeholder">No queries yet...</p>';
                 } else {
-                    // Mostrar error genérico en el chat
                     chatMessages.innerHTML += `
                     <div class="message assistantMessage">
                         <div class="messageIcon">🤖</div>
-                        <div class="messageContent">Lo siento, ha ocurrido un error al procesar el archivo. Por favor, inténtalo de nuevo más tarde.</div>
+                        <div class="messageContent">Sorry, an error occurred while processing the file. Please try again later.</div>
                     </div>
                 `;
-                    // Registrar el error detallado en la consola
-                    console.error("Error del servidor:", data.error);
+                    console.error("Server error:", data.error);
                 }
 
-                // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             })
             .catch(error => {
-                // Eliminar mensaje de procesamiento
                 document.getElementById('processing-message').remove();
 
-                // Registrar el error detallado en la consola
-                console.error("Error al procesar el archivo:", error);
+                console.error("Error processing file:", error);
 
-                // Mostrar mensaje genérico en el chat
                 chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Lo siento, ha ocurrido un error al procesar el archivo. Por favor, inténtalo de nuevo más tarde.</div>
+                    <div class="messageContent">Sorry, an error occurred while processing the file. Please try again later.</div>
                 </div>
             `;
 
-                // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     });
 
-    // Función para enviar pregunta
+    // Send question to server
     function sendQuestion() {
         const question = questionInput.value.trim();
         if (!question) return;
@@ -219,17 +194,16 @@ document.addEventListener('DOMContentLoaded', function () {
             chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Por favor sube un documento primero.</div>
+                    <div class="messageContent">Please upload a document first.</div>
                 </div>
             `;
             chatMessages.scrollTop = chatMessages.scrollHeight;
             return;
         }
 
-        // Limpiar el input inmediatamente después de obtener su valor
         questionInput.value = '';
 
-        // Agregar mensaje del usuario
+        // Add user message
         chatMessages.innerHTML += `
             <div class="message userMessage">
                 <div class="messageIcon">👤</div>
@@ -237,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-        // Mostrar mensaje de "escribiendo"
+        // Show typing indicator
         chatMessages.innerHTML += `
             <div class="message assistantMessage" id="typing-message">
                 <div class="messageIcon">🤖</div>
@@ -249,10 +223,9 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-        // Scroll al final
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Enviar pregunta al servidor
+        // Send question to server
         fetch('/ask', {
             method: 'POST',
             headers: {
@@ -262,22 +235,18 @@ document.addEventListener('DOMContentLoaded', function () {
         })
             .then(response => response.json())
             .then(data => {
-                // Eliminar indicador de escritura
                 document.getElementById('typing-message').remove();
 
                 if (data.error) {
-                    // Registrar el error detallado en la consola
-                    console.error("Error del servidor:", data.error);
-                    
-                    // Mostrar mensaje genérico en el chat
+                    console.error("Server error:", data.error);
+
                     chatMessages.innerHTML += `
                     <div class="message assistantMessage">
                         <div class="messageIcon">🤖</div>
-                        <div class="messageContent">Lo siento, ha ocurrido un error al procesar tu pregunta. Por favor, inténtalo de nuevo.</div>
+                        <div class="messageContent">Sorry, an error occurred while processing your question. Please try again.</div>
                     </div>
                     `;
                 } else {
-                    // Mostrar respuesta
                     chatMessages.innerHTML += `
                     <div class="message assistantMessage">
                         <div class="messageIcon">🤖</div>
@@ -285,36 +254,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                     `;
 
-                    // Actualizar fragmentos en el sidebar
+                    // Update fragments in sidebar
                     if (data.sources && data.sources.length) {
                         updateFragments(data.sources);
                     }
                 }
 
-                // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             })
             .catch(error => {
-                // Eliminar indicador de escritura
                 document.getElementById('typing-message').remove();
 
-                // Registrar el error detallado en la consola
-                console.error("Error al procesar la pregunta:", error);
+                console.error("Error processing question:", error);
 
-                // Mostrar mensaje genérico en el chat
                 chatMessages.innerHTML += `
                 <div class="message assistantMessage">
                     <div class="messageIcon">🤖</div>
-                    <div class="messageContent">Lo siento, ha ocurrido un error al procesar tu pregunta. Por favor, inténtalo de nuevo.</div>
+                    <div class="messageContent">Sorry, an error occurred while processing your question. Please try again.</div>
                 </div>
             `;
 
-                // Scroll al final
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             });
     }
 
-    // Eventos para enviar mensaje
+    // Message sending events
     sendBtn.addEventListener('click', sendQuestion);
     questionInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {

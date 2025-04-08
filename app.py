@@ -8,56 +8,44 @@ from langchain_community.vectorstores import DocArrayInMemorySearch
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
 
-# Cargar variables de entorno
+# Load environment variables
 load_dotenv()
 
-# Configuración de la aplicación Flask
+# Flask app configuration
 app = Flask(__name__, 
             static_folder='front',
             template_folder='front')
 
-# Configuración de Cohere
-embedding_model = "embed-english-v3.0"  # Modelo de embeddings de Cohere
+# Cohere configuration
+embedding_model = "embed-english-v3.0"
 cohere_api_key = os.environ.get('COHERE_API_KEY')
-model_name = "command"  # Modelo de chat de Cohere
+model_name = "command"
 
-# Variables globales para mantener estado
+# Global state variables
 qa_chain = None
 chat_history = []
 
 def process_document(file_path, chain_type="stuff", k=4):
-    """
-    Procesa un archivo PDF o Word para crear una cadena de consulta conversacional.
-    
-    Args:
-        file_path: Ruta al archivo
-        chain_type: Tipo de cadena para la recuperación
-        k: Número de fragmentos a recuperar
-        
-    Returns:
-        ConversationalRetrievalChain: La cadena de consulta inicializada
-    """
-    # Determinar el tipo de archivo por su extensión
+    # Determine file type by extension
     if file_path.lower().endswith('.pdf'):
         loader = PyPDFLoader(file_path)
     elif file_path.lower().endswith('.docx'):
         loader = Docx2txtLoader(file_path)
     else:
-        raise ValueError("Formato de archivo no soportado. Solo PDF o DOCX.")
+        raise ValueError("Unsupported file format. Only PDF or DOCX accepted.")
     
-    # El resto de la función permanece igual
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
     docs = text_splitter.split_documents(documents)
     
-    # Crear embeddings y base de datos vectorial
+    # Create embeddings and vector database
     embeddings = CohereEmbeddings(model=embedding_model, cohere_api_key=cohere_api_key)
     db = DocArrayInMemorySearch.from_documents(docs, embeddings)
     
-    # Configurar recuperador
+    # Configure retriever
     retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": k})
     
-    # Crear cadena conversacional
+    # Create conversational chain
     qa = ConversationalRetrievalChain.from_llm(
         llm=ChatCohere(model=model_name, temperature=0, cohere_api_key=cohere_api_key),
         chain_type=chain_type,
@@ -70,19 +58,14 @@ def process_document(file_path, chain_type="stuff", k=4):
 
 @app.route('/')
 def index():
-    """Ruta principal que sirve la página de inicio"""
     return render_template('homepage/index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
-    """Sirve archivos estáticos desde la carpeta front"""
     return send_from_directory('front', path)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """
-    Ruta para cargar y procesar un archivo PDF o Word
-    """
     global qa_chain, chat_history
     
     if 'file' not in request.files:
@@ -92,76 +75,83 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     
-    # Verificar si el archivo es PDF o DOCX
+    # Check if file is PDF or DOCX
     if file and (file.filename.lower().endswith('.pdf') or file.filename.lower().endswith('.docx')):
-        # Crear directorio de uploads si no existe
+        # Create uploads directory if it doesn't exist
         os.makedirs('uploads', exist_ok=True)
         
-        # Guardar el archivo
+        # Save the file
         file_path = os.path.join('uploads', file.filename)
         file.save(file_path)
         
         try:
-            # Procesar el documento
+            # Process the document
             qa_chain = process_document(file_path)
-            # Resetear historial para nueva conversación
+            # Reset history for new conversation
             chat_history = []
             
-            # Eliminar el archivo después de procesarlo
-            os.remove(file_path)
+            # Delete the file after successful processing
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"Temporary file removed: {file_path}", file=sys.stderr)
+                except Exception as e:
+                    print(f"Error removing temporary file (success): {str(e)}", file=sys.stderr)
             
             return jsonify({
                 "success": True, 
                 "filename": file.filename
             })
-        except Exception as e:
-            # Registrar el error detallado en la consola del servidor
-            print(f"Error al procesar archivo: {str(e)}", file=sys.stderr)
             
-            # Intentar eliminar el archivo en caso de error
+        except Exception as e:
+            # Log detailed error to server console
+            print(f"Error processing file: {str(e)}", file=sys.stderr)
+            
+            # Delete the file in case of error
             if os.path.exists(file_path):
-                os.remove(file_path)
+                try:
+                    os.remove(file_path)
+                    print(f"Temporary file removed (error): {file_path}", file=sys.stderr)
+                except Exception as e_remove:
+                    print(f"Error removing temporary file (error): {str(e_remove)}", file=sys.stderr)
                 
             return jsonify({
-                "error": "Error al procesar el archivo. Por favor, inténtalo más tarde."
+                "error": "Error processing the file. Please try again later."
             })
 
-    return jsonify({"error": "El archivo debe ser PDF o DOCX (Word)"})
+    return jsonify({"error": "File must be PDF or DOCX (Word)"})
 
 @app.route('/ask', methods=['POST'])
 def ask_question():
-    """
-    Ruta para procesar preguntas sobre el documento cargado
-    """
     global chat_history, qa_chain
 
-    # Verificar que hay una cadena inicializada
+    # Verify that a chain is initialized
     if not qa_chain:
-        return jsonify({"error": "Por favor, carga un documento primero"})
+        return jsonify({"error": "Please upload a document first"})
     
-    # Obtener la pregunta del request
+    # Get the question from the request
     data = request.json
     if not data or 'question' not in data:
-        return jsonify({"error": "No se proporcionó una pregunta"})
+        return jsonify({"error": "No question provided"})
     
     question = data['question']
     
     try:
-        # Invocar la cadena con la pregunta y el historial
+        # Invoke the chain with the question and history
         result = qa_chain.invoke({
             "question": question, 
             "chat_history": chat_history
         })
         
-        # Actualizar el historial de chat
+        # Update chat history
         chat_history.append((question, result["answer"]))
         
-        # Formatear los documentos fuente para la respuesta
+        # Format source documents for the response
         sources = []
         for doc in result["source_documents"]:
-            # Versión completa sin truncar
+            # Full version without truncation
             full_content = doc.page_content
-            # Versión truncada para mostrar inicialmente
+            # Truncated version for initial display
             content_preview = full_content[:300] + "..." if len(full_content) > 300 else full_content
             
             sources.append({
@@ -170,7 +160,7 @@ def ask_question():
                 "metadata": doc.metadata
             })
         
-        # Preparar la respuesta
+        # Prepare the response
         response = {
             "answer": result["answer"],
             "sources": sources,
@@ -180,20 +170,20 @@ def ask_question():
         return jsonify(response)
     
     except Exception as e:
-        print(f"Error al procesar pregunta: {str(e)}", file=sys.stderr)
+        print(f"Error processing question: {str(e)}", file=sys.stderr)
         
         return jsonify({
-            "error": "Error al procesar la pregunta. Por favor, inténtalo más tarde."
+            "error": "Error processing the question. Please try again later."
         })
 
 if __name__ == '__main__':
-    # Verificar la presencia de la API key
+    # Verify API key presence
     if not cohere_api_key:
-        print("Error: No se encontró COHERE_API_KEY en las variables de entorno")
-        print("Por favor, crea un archivo .env con tu API key de Cohere")
+        print("Error: COHERE_API_KEY not found in environment variables")
+        print("Please create a .env file with your Cohere API key")
         sys.exit(1)
     
     port = int(os.environ.get('PORT', 8080))
     
-    print(f"Iniciando servidor en http://localhost:{port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    print(f"Starting server at http://localhost:{port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
