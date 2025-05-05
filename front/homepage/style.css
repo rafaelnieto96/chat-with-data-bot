@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Roboto+Mono:wght@300;400;500;700&family=Nunito:wght@300;400;500;600&display=swap');
+
 :root {
   --primary-blue: #005BAA;
   --secondary-blue: #00234D;
@@ -14,6 +16,10 @@
   --shadow-blue: rgba(0, 91, 170, 0.3);
 
   --font-primary: 'Work Sans', system-ui, -apple-system, sans-serif;
+
+  --heading-font: 'Audiowide', cursive;
+  --body-font: 'Roboto Mono', monospace;
+  --message-font: 'Nunito', sans-serif;
 }
 
 html,
@@ -22,10 +28,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: var(--font-primary);
-}
-
-body {
+  font-family: var(--body-font);
   background-color: var(--mid-blue);
   color: var(--text-white);
   line-height: 1.6;
@@ -38,7 +41,7 @@ body {
   color: var(--text-white);
   display: flex;
   overflow: hidden;
-  font-family: var(--font-primary);
+  font-family: var(--body-font);
 }
 
 .chatSidebar {
@@ -51,7 +54,7 @@ body {
   height: 100%;
   transition: width 0.3s ease;
   overflow: hidden;
-  font-family: var(--font-primary);
+  font-family: var(--body-font);
 }
 
 .chatSidebar.collapsed {
@@ -112,6 +115,7 @@ body {
   letter-spacing: 1px;
   flex-shrink: 0;
   padding: 0 10px;
+  font-family: var(--heading-font);
 }
 
 .fragmentItem {
@@ -126,6 +130,7 @@ body {
   text-align: left;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  font-family: var(--message-font);
 }
 
 .fragmentContent {
@@ -139,6 +144,7 @@ body {
   line-height: 1.5;
   font-size: 0.95em;
   transition: max-height 0.3s ease;
+  font-family: var(--message-font);
 }
 
 .fragmentContent.expanded {
@@ -160,6 +166,7 @@ body {
   margin-top: 8px;
   font-weight: 500;
   transition: color 0.2s ease;
+  font-family: var(--message-font);
 }
 
 .fragmentToggle:hover {
@@ -207,9 +214,10 @@ body {
 .chatTitle {
   color: var(--text-white);
   text-align: center;
-  text-shadow: none;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px var(--shadow-blue);
   margin: 0;
-  font-family: var(--font-primary);
+  font-family: var(--heading-font);
+  letter-spacing: 2px;
 }
 
 .chatContainer {
@@ -234,6 +242,7 @@ body {
   line-height: 1.4;
   display: flex;
   align-items: center;
+  font-family: var(--message-font);
 }
 
 .messageIcon {
@@ -306,10 +315,12 @@ body {
   border: none;
   color: var(--text-white);
   font-size: 16px;
+  font-family: var(--message-font);
 }
 
 .userInput::placeholder {
   color: rgba(255, 255, 255, 0.6);
+  font-family: var(--message-font);
 }
 
 .userInput:focus {
@@ -324,6 +335,7 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 16px;
+  font-family: var(--body-font);
 }
 
 .actionBtn:hover {
@@ -402,7 +414,6 @@ body {
 }
 
 @keyframes bounce {
-
   0%,
   80%,
   100% {
