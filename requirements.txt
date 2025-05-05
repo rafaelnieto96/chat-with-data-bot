@@ -1,13 +1,20 @@
-# Esenciales para la app
-flask
-python-dotenv>=1.0.0
+# Web framework
+flask==2.3.3
+Werkzeug==2.3.7
+Jinja2==3.1.2
 
-# LangChain y Cohere
+# LangChain and Cohere
 langchain>=0.1.0
 langchain-cohere>=0.1.0
 langchain-community>=0.0.10
+cohere>=4.37
 
-# Procesamiento de documentos
-pypdf>=3.15.1
+# Vectorstore
 docarray>=0.32.0
-docx2txt
+
+# Document processing
+pypdf>=3.15.1
+docx2txt>=0.8
+
+# WSGI server (for PythonAnywhere)
+gunicorn==21.2.0

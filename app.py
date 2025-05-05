@@ -13,8 +13,8 @@ load_dotenv()
 
 # Flask app configuration
 app = Flask(__name__, 
-            static_folder='front',
-            template_folder='front')
+            static_folder='static',
+            template_folder='templates')
 
 # Cohere configuration
 embedding_model = "embed-english-v3.0"
@@ -58,11 +58,15 @@ def process_document(file_path, chain_type="stuff", k=4):
 
 @app.route('/')
 def index():
-    return render_template('homepage/index.html')
+    return render_template('index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('front', path)
+
+@app.route('/static/sample-document.pdf')
+def serve_sample_document():
+    return send_from_directory('static', 'sample-document.pdf')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
