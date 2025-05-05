@@ -170,8 +170,11 @@ document.addEventListener('DOMContentLoaded', function () {
         iconDiv.innerHTML = '🤖';
 
         const contentDiv = document.createElement('div');
-        contentDiv.className = 'messageContent processingContainer';
-
+        contentDiv.className = 'messageContent';
+        
+        const processingDiv = document.createElement('div');
+        processingDiv.className = 'processingContainer';
+        
         const processingText = document.createElement('span');
         processingText.textContent = 'Thinking';
 
@@ -179,8 +182,10 @@ document.addEventListener('DOMContentLoaded', function () {
         typingIndicator.className = 'typing-indicator';
         typingIndicator.innerHTML = '<span></span><span></span><span></span>';
 
-        contentDiv.appendChild(processingText);
-        contentDiv.appendChild(typingIndicator);
+        processingDiv.appendChild(processingText);
+        processingDiv.appendChild(typingIndicator);
+        
+        contentDiv.appendChild(processingDiv);
 
         messageDiv.appendChild(iconDiv);
         messageDiv.appendChild(contentDiv);

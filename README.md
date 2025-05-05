@@ -1,4 +1,4 @@
-# Chat with Your Documents
+# DataNexus
 
 A web application that allows users to upload PDF or Word documents and ask questions about their content. The app uses Cohere's AI models for generating embeddings and answering questions based on the document content.
 
