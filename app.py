@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import sys
+import json
+import math
 from dotenv import load_dotenv
-from langchain_cohere import CohereEmbeddings, ChatCohere
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import DocArrayInMemorySearch
-from langchain.chains import ConversationalRetrievalChain
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader
+import requests
+import PyPDF2
+import docx2txt
 
 # Load environment variables
 load_dotenv()
@@ -17,44 +17,173 @@ app = Flask(__name__,
             template_folder='templates')
 
 # Cohere configuration
-embedding_model = "embed-english-v3.0"
 cohere_api_key = os.environ.get('COHERE_API_KEY')
-model_name = "command"
 
 # Global state variables
-qa_chain = None
+document_chunks = []
+document_embeddings = []
 chat_history = []
 
-def process_document(file_path, chain_type="stuff", k=4):
-    # Determine file type by extension
+def cosine_similarity_simple(vec1, vec2):
+    """Calcular similitud coseno sin sklearn"""
+    # Producto punto
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    
+    # Magnitudes
+    magnitude1 = math.sqrt(sum(a * a for a in vec1))
+    magnitude2 = math.sqrt(sum(a * a for a in vec2))
+    
+    if magnitude1 == 0 or magnitude2 == 0:
+        return 0
+    
+    return dot_product / (magnitude1 * magnitude2)
+
+def get_embeddings(texts):
+    """Obtener embeddings usando Cohere API directamente"""
+    try:
+        api_key = os.environ.get('COHERE_API_KEY')
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            "model": "embed-english-v3.0",
+            "texts": texts,
+            "input_type": "search_document"
+        }
+        
+        response = requests.post(
+            'https://api.cohere.ai/v1/embed',
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result['embeddings']
+        else:
+            print(f"Error getting embeddings: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        print(f"Error en embeddings: {str(e)}")
+        return None
+
+def get_cohere_response(prompt):
+    """Generar respuesta usando Cohere API directamente"""
+    try:
+        api_key = os.environ.get('COHERE_API_KEY')
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            "model": "command-r",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 1024,
+            "temperature": 0.1
+        }
+        
+        response = requests.post(
+            'https://api.cohere.ai/v2/chat',
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result['message']['content'][0]['text']
+        else:
+            print(f"Error getting response: {response.status_code} - {response.text}")
+            return "Sorry, I encountered an issue processing your request."
+            
+    except Exception as e:
+        print(f"Error en chat: {str(e)}")
+        return "Sorry, I encountered an issue processing your request."
+
+def split_text(text, chunk_size=1000, chunk_overlap=150):
+    """Dividir texto en chunks"""
+    chunks = []
+    words = text.split()
+    
+    i = 0
+    while i < len(words):
+        # Tomar chunk_size palabras
+        chunk_words = words[i:i + chunk_size]
+        chunk = ' '.join(chunk_words)
+        chunks.append(chunk)
+        
+        # Avanzar con overlap
+        i += chunk_size - chunk_overlap
+        if i >= len(words):
+            break
+    
+    return chunks
+
+def find_relevant_chunks(query, k=4):
+    """Encontrar chunks más relevantes usando similitud de coseno"""
+    if not document_embeddings or not document_chunks:
+        return []
+    
+    # Obtener embedding de la query
+    query_embedding = get_embeddings([query])
+    if not query_embedding:
+        return []
+    
+    query_vector = query_embedding[0]
+    
+    # Calcular similitudes con cada chunk
+    similarities = []
+    for doc_vector in document_embeddings:
+        similarity = cosine_similarity_simple(query_vector, doc_vector)
+        similarities.append(similarity)
+    
+    # Obtener top k indices
+    indexed_similarities = [(i, sim) for i, sim in enumerate(similarities)]
+    indexed_similarities.sort(key=lambda x: x[1], reverse=True)
+    
+    relevant_chunks = []
+    for i, similarity in indexed_similarities[:k]:
+        if similarity > 0.1:  # Umbral mínimo de similitud
+            relevant_chunks.append({
+                'content': document_chunks[i],
+                'similarity': similarity
+            })
+    
+    return relevant_chunks
+
+def process_document(file_path):
+    """Procesar documento y crear embeddings"""
+    global document_chunks, document_embeddings
+    
+    # Leer contenido del archivo
+    content = ""
     if file_path.lower().endswith('.pdf'):
-        loader = PyPDFLoader(file_path)
+        with open(file_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            for page in pdf_reader.pages:
+                content += page.extract_text() + "\n"
     elif file_path.lower().endswith('.docx'):
-        loader = Docx2txtLoader(file_path)
+        content = docx2txt.process(file_path)
     else:
         raise ValueError("Unsupported file format. Only PDF or DOCX accepted.")
     
-    documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
-    docs = text_splitter.split_documents(documents)
+    # Dividir en chunks
+    document_chunks = split_text(content)
     
-    # Create embeddings and vector database
-    embeddings = CohereEmbeddings(model=embedding_model, cohere_api_key=cohere_api_key)
-    db = DocArrayInMemorySearch.from_documents(docs, embeddings)
-    
-    # Configure retriever
-    retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": k})
-    
-    # Create conversational chain
-    qa = ConversationalRetrievalChain.from_llm(
-        llm=ChatCohere(model=model_name, temperature=0, cohere_api_key=cohere_api_key),
-        chain_type=chain_type,
-        retriever=retriever,
-        return_source_documents=True,
-        return_generated_question=True,
-    )
-    
-    return qa
+    # Generar embeddings para todos los chunks
+    embeddings = get_embeddings(document_chunks)
+    if embeddings:
+        document_embeddings = embeddings
+        return True
+    else:
+        return False
 
 @app.route('/')
 def index():
@@ -68,9 +197,42 @@ def serve_static(path):
 def serve_sample_document():
     return send_from_directory('static', 'sample-document.pdf')
 
+@app.route('/status', methods=['GET'])
+def status():
+    """Simple endpoint to check API connectivity"""
+    try:
+        api_key = os.environ.get('COHERE_API_KEY')
+        
+        headers = {
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            "model": "command-r",
+            "messages": [{"role": "user", "content": "Hello"}],
+            "max_tokens": 5
+        }
+        
+        response = requests.post(
+            'https://api.cohere.ai/v2/chat',
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return f"API connection working! Response: {result['message']['content'][0]['text']}"
+        else:
+            return f"API error: {response.status_code} - {response.text}"
+            
+    except Exception as e:
+        return f"API connection error: {str(e)}"
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    global qa_chain, chat_history
+    global chat_history
     
     if 'file' not in request.files:
         return jsonify({"error": "No file part"})
@@ -90,22 +252,25 @@ def upload_file():
         
         try:
             # Process the document
-            qa_chain = process_document(file_path)
-            # Reset history for new conversation
-            chat_history = []
-            
-            # Delete the file after successful processing
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                    print(f"Temporary file removed: {file_path}", file=sys.stderr)
-                except Exception as e:
-                    print(f"Error removing temporary file (success): {str(e)}", file=sys.stderr)
-            
-            return jsonify({
-                "success": True, 
-                "filename": file.filename
-            })
+            success = process_document(file_path)
+            if success:
+                # Reset history for new conversation
+                chat_history = []
+                
+                # Delete the file after successful processing
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        print(f"Temporary file removed: {file_path}", file=sys.stderr)
+                    except Exception as e:
+                        print(f"Error removing temporary file (success): {str(e)}", file=sys.stderr)
+                
+                return jsonify({
+                    "success": True, 
+                    "filename": file.filename
+                })
+            else:
+                raise Exception("Failed to process embeddings")
             
         except Exception as e:
             # Log detailed error to server console
@@ -127,10 +292,10 @@ def upload_file():
 
 @app.route('/ask', methods=['POST'])
 def ask_question():
-    global chat_history, qa_chain
+    global chat_history, document_chunks, document_embeddings
 
-    # Verify that a chain is initialized
-    if not qa_chain:
+    # Verify that we have processed a document
+    if not document_chunks or not document_embeddings:
         return jsonify({"error": "Please upload a document first"})
     
     # Get the question from the request
@@ -141,34 +306,54 @@ def ask_question():
     question = data['question']
     
     try:
-        # Invoke the chain with the question and history
-        result = qa_chain.invoke({
-            "question": question, 
-            "chat_history": chat_history
-        })
+        # Find relevant chunks
+        relevant_chunks = find_relevant_chunks(question, k=4)
+        
+        if not relevant_chunks:
+            return jsonify({"error": "No relevant information found in the document"})
+        
+        # Create context from relevant chunks
+        context = "\n\n".join([chunk['content'] for chunk in relevant_chunks])
+        
+        # Create prompt with context and chat history
+        history_text = ""
+        if chat_history:
+            history_text = "\n\nPrevious conversation:\n"
+            for q, a in chat_history[-3:]:  # Last 3 exchanges
+                history_text += f"Q: {q}\nA: {a}\n"
+        
+        prompt = f"""Based on the following document context, please answer the question. If the answer is not in the context, say so clearly.
+
+Context from document:
+{context}
+
+{history_text}
+
+Question: {question}
+
+Answer:"""
+        
+        # Get response from Cohere
+        answer = get_cohere_response(prompt)
         
         # Update chat history
-        chat_history.append((question, result["answer"]))
+        chat_history.append((question, answer))
         
-        # Format source documents for the response
+        # Format sources for response
         sources = []
-        for doc in result["source_documents"]:
-            # Full version without truncation
-            full_content = doc.page_content
-            # Truncated version for initial display
-            content_preview = full_content[:300] + "..." if len(full_content) > 300 else full_content
-            
+        for chunk in relevant_chunks:
+            content_preview = chunk['content'][:300] + "..." if len(chunk['content']) > 300 else chunk['content']
             sources.append({
                 "content": content_preview,
-                "full_content": full_content,
-                "metadata": doc.metadata
+                "full_content": chunk['content'],
+                "metadata": {"similarity": chunk['similarity']}
             })
         
         # Prepare the response
         response = {
-            "answer": result["answer"],
+            "answer": answer,
             "sources": sources,
-            "db_query": result.get("generated_question", "")
+            "db_query": question
         }
         
         return jsonify(response)
